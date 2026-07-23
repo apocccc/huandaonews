@@ -89,13 +89,20 @@ pnpm prisma db push
 echo "▶ seeding sample data..."
 pnpm db:seed
 
+# --- 開発サーバーの空きポートを選ぶ(他プロジェクトの3000等と衝突しないように) ---
+WEB_PORT=3000
+while port_in_use "$WEB_PORT"; do
+  echo "▶ port $WEB_PORT is in use by another app, trying $((WEB_PORT + 1)) ..."
+  WEB_PORT=$((WEB_PORT + 1))
+done
+
 echo ""
 echo "════════════════════════════════════════════════════════"
-echo "  ✅ Open:  http://localhost:3000"
-echo "     (ポートが使用中の場合は下に表示される Local: の URL)"
-echo "     管理画面: /admin (admin@huandaonews.com / admin1234)"
+echo "  ✅ Open:  http://localhost:${WEB_PORT}"
+echo "     管理画面: http://localhost:${WEB_PORT}/admin"
+echo "               (admin@huandaonews.com / admin1234)"
 echo "     DB停止:   $PGBIN/pg_ctl -D .pgdata stop"
 echo "════════════════════════════════════════════════════════"
 echo ""
 
-exec pnpm dev
+exec pnpm dev -p "$WEB_PORT"

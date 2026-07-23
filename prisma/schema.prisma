@@ -154,6 +154,8 @@ model RssFeed {
   category          Category  @relation(fields: [categoryId], references: [id])
   autoPublish       Boolean   @default(true)
   isEnabled         Boolean   @default(true)
+  // 1回の取得で取り込む最大件数 (1〜30)
+  fetchLimit        Int       @default(10)
   lastFetchedAt     DateTime?
   lastError         String?
   lastImportedCount Int       @default(0)

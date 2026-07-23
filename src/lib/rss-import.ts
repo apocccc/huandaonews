@@ -111,9 +111,11 @@ export async function importFeed(
     throw e;
   }
 
+  // 優先順: 呼び出し時の指定 > フィードごとの設定 > 上限
+  const limit = opts.maxItems ?? feed.fetchLimit ?? MAX_ITEMS_PER_FETCH;
   const items = (parsed.items ?? []).slice(
     0,
-    Math.min(opts.maxItems ?? MAX_ITEMS_PER_FETCH, MAX_ITEMS_PER_FETCH)
+    Math.min(Math.max(1, limit), MAX_ITEMS_PER_FETCH)
   );
 
   for (const item of items) {

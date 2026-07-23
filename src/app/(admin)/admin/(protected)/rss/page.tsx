@@ -80,6 +80,17 @@ export default async function RssFeedsPage() {
                   ))}
                 </select>
                 <label className="flex items-center gap-1.5">
+                  {t("fetchLimit")}
+                  <input
+                    type="number"
+                    name="fetchLimit"
+                    min={1}
+                    max={30}
+                    defaultValue={feed.fetchLimit}
+                    className="w-16 rounded border border-line px-2 py-1.5"
+                  />
+                </label>
+                <label className="flex items-center gap-1.5">
                   <input
                     type="checkbox"
                     name="autoPublish"
@@ -174,6 +185,17 @@ export default async function RssFeedsPage() {
             </option>
           ))}
         </select>
+        <label className="flex items-center gap-1.5">
+          {t("fetchLimit")}
+          <input
+            type="number"
+            name="fetchLimit"
+            min={1}
+            max={30}
+            defaultValue={10}
+            className="w-16 rounded border border-line px-2 py-1.5"
+          />
+        </label>
         <label className="flex items-center gap-1.5" title={t("autoPublishHint")}>
           <input type="checkbox" name="autoPublish" defaultChecked />
           {t("autoPublish")}

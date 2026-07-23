@@ -98,6 +98,7 @@
       "category": "取り込み先カテゴリー",
       "autoPublish": "自動公開",
       "autoPublishHint": "ON=取り込み後に審査なしで即公開/OFF=「レビュー待ち」に入り、承認後に公開",
+      "fetchLimit": "取得件数",
       "enabled": "有効",
       "fetchNow": "今すぐ取得",
       "lastFetched": "最終取得",

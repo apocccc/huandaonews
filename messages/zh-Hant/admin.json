@@ -98,6 +98,7 @@
       "category": "匯入分類",
       "autoPublish": "自動公開",
       "autoPublishHint": "勾選=匯入後不經審核立即公開/不勾選=進入「待審核」,由編輯核准後才公開",
+      "fetchLimit": "每次抓取件數",
       "enabled": "啟用",
       "fetchNow": "立即抓取",
       "lastFetched": "上次抓取",

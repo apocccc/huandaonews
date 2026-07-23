@@ -98,6 +98,7 @@
       "category": "Import category",
       "autoPublish": "Auto-publish",
       "autoPublishHint": "Checked = publish immediately without review / Unchecked = imported as \"In review\" and published after approval",
+      "fetchLimit": "Items per fetch",
       "enabled": "Enabled",
       "fetchNow": "Fetch now",
       "lastFetched": "Last fetched",

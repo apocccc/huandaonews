@@ -28,6 +28,7 @@ const feedSchema = z.object({
   url: z.string().url().max(500),
   categoryId: z.string().min(1),
   autoPublish: z.boolean(),
+  fetchLimit: z.coerce.number().int().min(1).max(30),
 });
 
 export async function createFeedAction(formData: FormData) {
@@ -37,6 +38,7 @@ export async function createFeedAction(formData: FormData) {
     url: formData.get("url"),
     categoryId: formData.get("categoryId"),
     autoPublish: formData.get("autoPublish") === "on",
+    fetchLimit: formData.get("fetchLimit") || 10,
   });
   await prisma.rssFeed.create({ data: parsed });
   revalidatePath("/admin/rss");
@@ -53,6 +55,7 @@ export async function updateFeedAction(formData: FormData) {
       categoryId: formData.get("categoryId"),
       autoPublish: formData.get("autoPublish") === "on",
       isEnabled: formData.get("isEnabled") === "on",
+      fetchLimit: formData.get("fetchLimit") || 10,
     });
   await prisma.rssFeed.update({ where: { id }, data: parsed });
   revalidatePath("/admin/rss");

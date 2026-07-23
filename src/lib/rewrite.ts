@@ -7,7 +7,11 @@ import type { JSONContent } from "@tiptap/core";
  * - APIキーはローカルの .env の OPENAI_API_KEY から読む
  */
 
-const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
+/** OPENAI_BASE_URL で互換エンドポイント(Azure等・検証用モック)へ差し替え可能 */
+function openaiUrl(): string {
+  const base = (process.env.OPENAI_BASE_URL || "https://api.openai.com/v1").replace(/\/$/, "");
+  return `${base}/chat/completions`;
+}
 
 export class RewriteError extends Error {}
 
@@ -118,7 +122,7 @@ export async function rewriteWithOpenAI(input: {
 
   const user = `分類:${input.categoryName}\n原標題:${input.title}\n原前言:${input.lead}\n\n原文:\n${input.sourceText}`;
 
-  const res = await fetch(OPENAI_URL, {
+  const res = await fetch(openaiUrl(), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

@@ -29,13 +29,16 @@ echo "▶ using PostgreSQL binaries: $PGBIN"
 
 DATA_DIR="$PWD/.pgdata"
 SOCKET_DIR="$DATA_DIR/sock"
-mkdir -p "$SOCKET_DIR"
 
 # --- 初回のみ initdb (trust認証・プロジェクト内に閉じたDB) ---
+# initdb は空ディレクトリを要求するため、ソケット用ディレクトリは initdb 後に作る
 if [ ! -f "$DATA_DIR/PG_VERSION" ]; then
   echo "▶ initializing project database..."
-  "$PGBIN/initdb" -D "$DATA_DIR" -U postgres --auth=trust -E UTF8 >/dev/null
+  rm -rf "$DATA_DIR"
+  "$PGBIN/initdb" -D "$DATA_DIR" -U postgres --auth=trust -E UTF8 --locale=C >/dev/null 2>&1 \
+    || { rm -rf "$DATA_DIR"; "$PGBIN/initdb" -D "$DATA_DIR" -U postgres --auth=trust -E UTF8 >/dev/null; }
 fi
+mkdir -p "$SOCKET_DIR"
 
 port_in_use() {
   (exec 3<>"/dev/tcp/127.0.0.1/$1") 2>/dev/null && { exec 3>&- 3<&-; return 0; } || return 1

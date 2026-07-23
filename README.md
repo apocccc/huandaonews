@@ -7,19 +7,24 @@
 
 ## クイックスタート (Mac / ローカル確認)
 
-前提: Node.js 20+、Docker Desktop(PostgreSQL用。なければ Homebrew の PostgreSQL でも可)。
+前提: Node.js 20+ と Homebrew の PostgreSQL(`brew install postgresql@16`。サービス起動は不要)。
 
 ```bash
 git clone https://github.com/apocccc/huandaonews.git
 cd huandaonews
 git checkout claude/huandaonews-news-media-ykuvxt   # ブランチ未マージの間のみ
-./scripts/setup-local.sh   # 依存・.env生成・DB起動・スキーマ反映・シードまで一括
-pnpm dev
+./scripts/dev-local.sh
 ```
+
+これ1コマンドで、プロジェクト専用の PostgreSQL を空きポート(5438〜)で起動 →
+`.env` 設定 → スキーマ反映 → サンプル記事133本+サムネイル投入 → `pnpm dev` まで実行します。
 
 → http://localhost:3000 (公開サイト) / http://localhost:3000/admin (管理画面)
 
-DBの停止は `docker compose down`(データ削除は `docker compose down -v`)。
+- DBデータはリポジトリ内 `.pgdata/`(gitignore済み)に閉じており、他のPostgreSQLと干渉しません
+- DBの停止: `$(brew --prefix postgresql@16)/bin/pg_ctl -D .pgdata stop`
+
+Docker Desktop を使いたい場合は `./scripts/setup-local.sh`(docker-compose 版)でも同じ状態になります。
 
 ## 手動セットアップ
 

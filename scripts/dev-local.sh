@@ -89,10 +89,10 @@ if ! grep -q '^OPENAI_API_KEY=' .env; then
 fi
 
 # --- 依存・スキーマ・シード ---
-if [ ! -d node_modules ]; then
-  echo "▶ pnpm install..."
-  pnpm install
-fi
+# 依存追加やスキーマ変更を含む更新を確実に取り込むため毎回実行する
+# (変更がなければ pnpm install は数百msで終わる。db push はクライアント再生成も行う)
+echo "▶ pnpm install..."
+pnpm install
 echo "▶ pushing schema..."
 pnpm prisma db push
 echo "▶ seeding sample data..."

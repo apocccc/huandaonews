@@ -5,11 +5,28 @@
 - 公開サイト: `https://huandaonews.com`(`NEXT_PUBLIC_SITE_URL` で設定)
 - 技術スタック: Next.js (App Router) / Prisma + PostgreSQL / Auth.js v5 / next-intl / Tiptap / Tailwind CSS v4
 
-## セットアップ
+## クイックスタート (Mac / ローカル確認)
+
+前提: Node.js 20+、Docker Desktop(PostgreSQL用。なければ Homebrew の PostgreSQL でも可)。
+
+```bash
+git clone https://github.com/apocccc/huandaonews.git
+cd huandaonews
+git checkout claude/huandaonews-news-media-ykuvxt   # ブランチ未マージの間のみ
+./scripts/setup-local.sh   # 依存・.env生成・DB起動・スキーマ反映・シードまで一括
+pnpm dev
+```
+
+→ http://localhost:3000 (公開サイト) / http://localhost:3000/admin (管理画面)
+
+DBの停止は `docker compose down`(データ削除は `docker compose down -v`)。
+
+## 手動セットアップ
 
 ```bash
 pnpm install
-cp .env.example .env.local   # DATABASE_URL などを設定
+cp .env.example .env         # DATABASE_URL などを設定 (Prisma CLI は .env を読む)
+docker compose up -d db      # または任意のPostgreSQLを用意
 pnpm prisma db push          # スキーマ反映
 pnpm db:seed                 # カテゴリー+サンプル記事+管理ユーザー投入
 pnpm dev

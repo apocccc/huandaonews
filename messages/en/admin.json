@@ -100,6 +100,18 @@
       "autoPublishHint": "Checked = publish immediately without review / Unchecked = imported as \"In review\" and published after approval",
       "fetchLimit": "Items per fetch",
       "enabled": "Enabled",
+      "autoFetch": "Auto-fetch",
+      "autoFetchHint": "Auto-fetch imports on the selected schedule. When off, you can still import manually with \"Fetch now\"",
+      "interval": "Fetch frequency",
+      "intervals": {
+        "m10": "Every 10 min",
+        "m30": "Every 30 min",
+        "h1": "Hourly",
+        "h3": "Every 3 hours",
+        "h6": "Every 6 hours",
+        "h12": "Every 12 hours",
+        "h24": "Daily"
+      },
       "fetchNow": "Fetch now",
       "lastFetched": "Last fetched",
       "importedTotal": "Total imported",

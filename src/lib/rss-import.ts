@@ -241,11 +241,20 @@ export async function importFeed(
   return result;
 }
 
-/** 有効な全フィードを取り込む(cron用) */
+/**
+ * 自動取り込み対象フィードのうち「前回取得から設定頻度以上経過したもの」を
+ * 取り込む(cron用。cron自体は10分おきに起動し、ここで頻度を判定する)
+ */
 export async function importAllFeeds(): Promise<Record<string, ImportResult>> {
   const feeds = await prisma.rssFeed.findMany({ where: { isEnabled: true } });
+  const now = Date.now();
   const results: Record<string, ImportResult> = {};
   for (const feed of feeds) {
+    const due =
+      !feed.lastFetchedAt ||
+      now - feed.lastFetchedAt.getTime() >=
+        feed.fetchIntervalMinutes * 60 * 1000 - 30 * 1000; // 30秒の誤差余裕
+    if (!due) continue;
     try {
       results[feed.name] = await importFeed(feed);
     } catch {

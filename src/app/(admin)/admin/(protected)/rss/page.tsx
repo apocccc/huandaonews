@@ -43,6 +43,16 @@ export default async function RssFeedsPage() {
     minute: "2-digit",
   });
 
+  const intervalOptions = [
+    { value: 10, label: t("intervals.m10") },
+    { value: 30, label: t("intervals.m30") },
+    { value: 60, label: t("intervals.h1") },
+    { value: 180, label: t("intervals.h3") },
+    { value: 360, label: t("intervals.h6") },
+    { value: 720, label: t("intervals.h12") },
+    { value: 1440, label: t("intervals.h24") },
+  ];
+
   return (
     <div className="max-w-4xl">
       <h1 className="text-2xl font-black">{t("title")}</h1>
@@ -104,8 +114,20 @@ export default async function RssFeedsPage() {
                     name="isEnabled"
                     defaultChecked={feed.isEnabled}
                   />
-                  {t("enabled")}
+                  {t("autoFetch")}
                 </label>
+                <select
+                  name="fetchIntervalMinutes"
+                  defaultValue={feed.fetchIntervalMinutes}
+                  aria-label={t("interval")}
+                  className="rounded border border-line bg-bg px-2 py-1.5"
+                >
+                  {intervalOptions.map((o) => (
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
                 <button
                   type="submit"
                   className="rounded border border-line px-3 py-1.5 text-xs font-bold hover:border-primary hover:text-primary"
@@ -200,6 +222,22 @@ export default async function RssFeedsPage() {
           <input type="checkbox" name="autoPublish" defaultChecked />
           {t("autoPublish")}
         </label>
+        <label className="flex items-center gap-1.5">
+          <input type="checkbox" name="isEnabled" defaultChecked />
+          {t("autoFetch")}
+        </label>
+        <select
+          name="fetchIntervalMinutes"
+          defaultValue={60}
+          aria-label={t("interval")}
+          className="rounded border border-line bg-bg px-2 py-1.5"
+        >
+          {intervalOptions.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
         <button
           type="submit"
           className="rounded bg-primary px-4 py-1.5 text-xs font-bold text-white hover:bg-primary-dark"
@@ -207,6 +245,7 @@ export default async function RssFeedsPage() {
           {t("add")}
         </button>
         <p className="w-full text-xs text-gray">{t("autoPublishHint")}</p>
+        <p className="w-full text-xs text-gray">{t("autoFetchHint")}</p>
       </form>
     </div>
   );

@@ -23,12 +23,18 @@ async function requireFeedManager() {
   return session.user;
 }
 
+const INTERVAL_OPTIONS = [10, 30, 60, 180, 360, 720, 1440] as const;
+
 const feedSchema = z.object({
   name: z.string().min(1).max(100),
   url: z.string().url().max(500),
   categoryId: z.string().min(1),
   autoPublish: z.boolean(),
   fetchLimit: z.coerce.number().int().min(1).max(30),
+  fetchIntervalMinutes: z.coerce
+    .number()
+    .int()
+    .refine((v) => (INTERVAL_OPTIONS as readonly number[]).includes(v)),
 });
 
 export async function createFeedAction(formData: FormData) {
@@ -39,8 +45,11 @@ export async function createFeedAction(formData: FormData) {
     categoryId: formData.get("categoryId"),
     autoPublish: formData.get("autoPublish") === "on",
     fetchLimit: formData.get("fetchLimit") || 10,
+    fetchIntervalMinutes: formData.get("fetchIntervalMinutes") || 60,
   });
-  await prisma.rssFeed.create({ data: parsed });
+  await prisma.rssFeed.create({
+    data: { ...parsed, isEnabled: formData.get("isEnabled") === "on" },
+  });
   revalidatePath("/admin/rss");
 }
 
@@ -56,6 +65,7 @@ export async function updateFeedAction(formData: FormData) {
       autoPublish: formData.get("autoPublish") === "on",
       isEnabled: formData.get("isEnabled") === "on",
       fetchLimit: formData.get("fetchLimit") || 10,
+      fetchIntervalMinutes: formData.get("fetchIntervalMinutes") || 60,
     });
   await prisma.rssFeed.update({ where: { id }, data: parsed });
   revalidatePath("/admin/rss");

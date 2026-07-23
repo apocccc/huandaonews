@@ -153,7 +153,10 @@ model RssFeed {
   categoryId        String
   category          Category  @relation(fields: [categoryId], references: [id])
   autoPublish       Boolean   @default(true)
+  // 自動取り込み(cron)の対象にするか。OFFでも手動「今すぐ取得」は可能
   isEnabled         Boolean   @default(true)
+  // 自動取り込みの頻度(分)。10/30/60/180/360/720/1440
+  fetchIntervalMinutes Int    @default(60)
   // 1回の取得で取り込む最大件数 (1〜30)
   fetchLimit        Int       @default(10)
   lastFetchedAt     DateTime?

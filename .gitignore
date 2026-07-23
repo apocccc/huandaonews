@@ -39,3 +39,6 @@ pnpm-debug.log*
 
 # local dev database
 /.pgdata
+
+# runtime/seed uploads (generated locally)
+/public/uploads/

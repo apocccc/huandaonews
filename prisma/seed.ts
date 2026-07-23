@@ -1,5 +1,9 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { mkdir } from "fs/promises";
+import path from "path";
+import sharp from "sharp";
+import { CATEGORY_SAMPLES } from "./sample-articles";
 
 const prisma = new PrismaClient();
 
@@ -48,6 +52,124 @@ function dateStamp(d: Date): string {
 function hoursAgo(h: number): Date {
   return new Date(Date.now() - h * 60 * 60 * 1000);
 }
+
+/* ---------- サムネイル自動生成 ---------- */
+
+// カテゴリーごとの配色(赤基調のブランドと馴染むトーン)
+const PALETTES: Record<string, [string, string]> = {
+  politics: ["#8C1D2F", "#D7263D"],
+  society: ["#B23A48", "#E86A5E"],
+  local: ["#3D5A80", "#98C1D9"],
+  world: ["#1D3557", "#457B9D"],
+  business: ["#6A040F", "#DC2F02"],
+  tech: ["#1B263B", "#4361EE"],
+  life: ["#E07A5F", "#F2CC8F"],
+  entertainment: ["#7209B7", "#B5179E"],
+  sports: ["#005F73", "#0A9396"],
+  health: ["#2D6A4F", "#74C69D"],
+  travel: ["#0077B6", "#90E0EF"],
+  "press-release": ["#6B7280", "#9CA3AF"],
+};
+
+const SEED_IMG_DIR = path.join(process.cwd(), "public", "uploads", "seed");
+
+/**
+ * カテゴリー配色のグラデーション+英字ラベルのサムネイルを生成する。
+ * (CJKフォントがない環境でも確実に描画できるようラベルは英語)
+ */
+async function generateThumb(
+  fileBase: string,
+  label: string,
+  categorySlug: string,
+  variant: number
+): Promise<string> {
+  const [c1, c2] = PALETTES[categorySlug] ?? ["#8C1D2F", "#D7263D"];
+  const cx = 900 + (variant % 3) * 60;
+  const cy = 120 + (variant % 4) * 90;
+  const svg = `<svg width="1200" height="675" viewBox="0 0 1200 675" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="${c1}"/>
+      <stop offset="1" stop-color="${c2}"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#g)"/>
+  <circle cx="${cx}" cy="${cy}" r="260" fill="#ffffff" opacity="0.08"/>
+  <circle cx="${cx - 140}" cy="${cy + 320}" r="380" fill="#000000" opacity="0.10"/>
+  <rect x="72" y="486" width="72" height="10" fill="#ffffff" opacity="0.9"/>
+  <text x="72" y="560" font-family="DejaVu Sans, Helvetica, Arial, sans-serif" font-size="64" font-weight="bold" fill="#ffffff" letter-spacing="2">${label.toUpperCase()}</text>
+  <text x="72" y="608" font-family="DejaVu Sans, Helvetica, Arial, sans-serif" font-size="24" fill="#ffffff" opacity="0.75" letter-spacing="6">HUANDAO NEWS</text>
+</svg>`;
+  const file = path.join(SEED_IMG_DIR, `${fileBase}.webp`);
+  await sharp(Buffer.from(svg)).webp({ quality: 80 }).toFile(file);
+  return `/uploads/seed/${fileBase}.webp`;
+}
+
+/** 記事にサムネイルが無ければ生成して紐付ける */
+async function ensureHeroImage(
+  article: { id: string; slug: string; heroImageId: string | null; title: string },
+  categorySlug: string,
+  categoryNameEn: string,
+  variant: number,
+  uploadedBy: string
+) {
+  if (article.heroImageId) return;
+  const url = await generateThumb(
+    article.slug,
+    categoryNameEn,
+    categorySlug,
+    variant
+  );
+  const media = await prisma.media.create({
+    data: {
+      url,
+      width: 1200,
+      height: 675,
+      alt: article.title,
+      mimeType: "image/webp",
+      uploadedBy,
+    },
+  });
+  await prisma.article.update({
+    where: { id: article.id },
+    data: { heroImageId: media.id },
+  });
+}
+
+/* ---------- サンプル本文の生成 ---------- */
+
+function sampleLead(title: string, isPR: boolean, source?: string): string {
+  return isPR
+    ? `${source ?? "發布單位"}今日發布新聞稿指出:${title}。詳細內容與相關資訊整理如下。`
+    : `${title}。事件背景、後續時程與各界回應,本文整理目前已知的重點資訊,帶你快速掌握。`;
+}
+
+function sampleBody(
+  title: string,
+  categoryZh: string,
+  isPR: boolean,
+  source?: string
+): (string | { h2: string })[] {
+  if (isPR) {
+    return [
+      `${source ?? "發布單位"}今日對外宣布:${title}。`,
+      "公司表示,本次發布是整體策略布局的一環,相關服務與產品細節將於官方網站陸續公開,並提供客戶專屬窗口協助轉換與諮詢。",
+      { h2: "重點整理" },
+      "一、服務內容與適用對象以官方公告為準;二、既有用戶權益不受影響;三、詳細時程與地區將分階段公布。",
+      "公司強調,未來將持續投入資源優化產品與服務體驗,並歡迎媒體與合作夥伴洽詢。",
+    ];
+  }
+  return [
+    `${title}。相關發展受到${categoryZh}版讀者高度關注,以下整理目前已確認的資訊與各界回應。`,
+    "相關單位表示,本案經過多月籌備與意見蒐集,細節將於近期對外說明,外界關注的配套措施也將一併公布。",
+    { h2: "重點一次看" },
+    "第一,時程與適用範圍將分階段公布;第二,相關預算與資源已納入年度規劃;第三,主管機關將設置單一窗口回應民眾疑問。",
+    "專家指出,後續執行成效仍需持續觀察,建議民眾與相關業者以官方公告為準,避免受到未經證實的訊息影響。",
+    "環島新聞網將持續追蹤最新進展,並整理各方觀點,提供讀者完整的第一手報導。",
+  ];
+}
+
+/* ---------- 手書きの主要サンプル記事 ---------- */
 
 type SeedArticle = {
   category: string;
@@ -290,6 +412,16 @@ const ARTICLES: SeedArticle[] = [
   },
 ];
 
+/**
+ * スラッグの日付部分は実行時刻に依存するため、同一 slugBase の記事が
+ * 既にあれば再実行時は作成をスキップする(シードの冪等性を保証)。
+ */
+async function findBySlugBase(slugBase: string) {
+  return prisma.article.findFirst({
+    where: { slug: { endsWith: `-${slugBase}` } },
+  });
+}
+
 async function main() {
   console.log("Seeding categories...");
   for (const c of CATEGORIES) {
@@ -327,7 +459,9 @@ async function main() {
     update: {},
   });
 
-  console.log("Seeding articles...");
+  await mkdir(SEED_IMG_DIR, { recursive: true });
+
+  console.log("Seeding featured articles...");
   for (const [i, a] of ARTICLES.entries()) {
     const category = await prisma.category.findUniqueOrThrow({
       where: { slug: a.category },
@@ -335,7 +469,8 @@ async function main() {
     const slug = `${dateStamp(a.publishedAt)}-${a.slugBase}`;
     const author = i % 3 === 0 ? admin : reporter;
 
-    const article = await prisma.article.upsert({
+    const existing = await findBySlugBase(a.slugBase);
+    const article = existing ?? await prisma.article.upsert({
       where: { slug },
       create: {
         slug,
@@ -354,6 +489,8 @@ async function main() {
       update: {},
     });
 
+    await ensureHeroImage(article, category.slug, category.nameEn, i, admin.id);
+
     for (const tag of a.tags ?? []) {
       const t = await prisma.tag.upsert({
         where: { slug: tag.slug },
@@ -366,6 +503,53 @@ async function main() {
         update: {},
       });
     }
+  }
+
+  console.log("Seeding category samples (10 per category)...");
+  const sampleCategories = Object.keys(CATEGORY_SAMPLES);
+  for (const [catIdx, catSlug] of sampleCategories.entries()) {
+    const category = await prisma.category.findUniqueOrThrow({
+      where: { slug: catSlug },
+    });
+    const isPR = catSlug === "press-release";
+    const entries = CATEGORY_SAMPLES[catSlug];
+
+    for (const [i, entry] of entries.entries()) {
+      // 直近~3日にばらけさせる(各カテゴリーに48時間以内の記事が必ず入る)
+      const publishedAt = hoursAgo(3 + i * 6.5 + catIdx * 1.3);
+      const slugBase = `${catSlug}-${String(i + 1).padStart(2, "0")}`;
+      const slug = `${dateStamp(publishedAt)}-${slugBase}`;
+      const author = (catIdx + i) % 3 === 0 ? admin : reporter;
+
+      const existing = await findBySlugBase(slugBase);
+      const article = existing ?? await prisma.article.upsert({
+        where: { slug },
+        create: {
+          slug,
+          title: entry.title,
+          lead: sampleLead(entry.title, isPR, entry.source),
+          body: doc(sampleBody(entry.title, category.nameZh, isPR, entry.source)),
+          status: "published",
+          publishedAt,
+          categoryId: category.id,
+          authorId: author.id,
+          isBreaking: catSlug === "world" && i === 0,
+          isPinned: catSlug === "tech" && i === 0,
+          prSourceName: isPR ? entry.source : null,
+          viewCount: ((i * 37 + catIdx * 53) % 97) * 18,
+        },
+        update: {},
+      });
+
+      await ensureHeroImage(
+        article,
+        category.slug,
+        category.nameEn,
+        catIdx * 3 + i,
+        admin.id
+      );
+    }
+    console.log(`  - ${catSlug}: ${entries.length} articles`);
   }
 
   console.log("Seed complete.");

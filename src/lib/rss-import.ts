@@ -40,6 +40,7 @@ export type ImportResult = {
   imported: number;
   skipped: number;
   errors: number;
+  articleIds: string[];
 };
 
 /** RSS取り込み記事の著者(システムユーザー)。編集部アカウントを優先 */
@@ -89,8 +90,11 @@ function resolveHeroCandidate(item: FeedItem, html: string): string | null {
 }
 
 /** 1フィードを取り込む。重複(guid/URL/タイトル)は先着優先でスキップ */
-export async function importFeed(feed: RssFeed): Promise<ImportResult> {
-  const result: ImportResult = { imported: 0, skipped: 0, errors: 0 };
+export async function importFeed(
+  feed: RssFeed,
+  opts: { maxItems?: number } = {}
+): Promise<ImportResult> {
+  const result: ImportResult = { imported: 0, skipped: 0, errors: 0, articleIds: [] };
   const importUser = await getImportUser();
 
   let parsed;
@@ -107,7 +111,10 @@ export async function importFeed(feed: RssFeed): Promise<ImportResult> {
     throw e;
   }
 
-  const items = (parsed.items ?? []).slice(0, MAX_ITEMS_PER_FETCH);
+  const items = (parsed.items ?? []).slice(
+    0,
+    Math.min(opts.maxItems ?? MAX_ITEMS_PER_FETCH, MAX_ITEMS_PER_FETCH)
+  );
 
   for (const item of items) {
     try {
@@ -213,6 +220,7 @@ export async function importFeed(feed: RssFeed): Promise<ImportResult> {
         revalidateArticle(article.category.slug, article.slug);
       }
       result.imported++;
+      result.articleIds.push(article.id);
     } catch (e) {
       console.error(`[rss-import] item failed (${feed.name}):`, e);
       result.errors++;
@@ -239,7 +247,7 @@ export async function importAllFeeds(): Promise<Record<string, ImportResult>> {
     try {
       results[feed.name] = await importFeed(feed);
     } catch {
-      results[feed.name] = { imported: 0, skipped: 0, errors: 1 };
+      results[feed.name] = { imported: 0, skipped: 0, errors: 1, articleIds: [] };
     }
   }
   return results;

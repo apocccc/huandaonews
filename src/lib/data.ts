@@ -129,6 +129,54 @@ export function getArticlesByCategory(
   );
 }
 
+/** 閲覧数ランキング(サイドバー用) */
+export function getPopularArticles(limit = 10) {
+  return safe(
+    () =>
+      prisma.article.findMany({
+        where: {
+          ...publishedWhere,
+          category: { isNot: { slug: "press-release" } },
+        },
+        orderBy: { viewCount: "desc" },
+        take: limit,
+        include: articleListInclude,
+      }),
+    []
+  );
+}
+
+/** カテゴリー別ダイジェスト(トップのセクション群用) */
+export function getCategoryDigests(perCategory = 4) {
+  return safe(
+    async () => {
+      const categories = await prisma.category.findMany({
+        where: {
+          isVisible: true,
+          slug: { notIn: ["latest", "press-release"] },
+        },
+        orderBy: { order: "asc" },
+      });
+      const digests = await Promise.all(
+        categories.map(async (category) => ({
+          category,
+          articles: await prisma.article.findMany({
+            where: { ...publishedWhere, categoryId: category.id },
+            orderBy: { publishedAt: "desc" },
+            take: perCategory,
+            include: articleListInclude,
+          }),
+        }))
+      );
+      return digests.filter((d) => d.articles.length > 0);
+    },
+    [] as {
+      category: Prisma.CategoryGetPayload<object>;
+      articles: ArticleListItem[];
+    }[]
+  );
+}
+
 export function getPressReleases(limit = 6) {
   return safe(
     () =>

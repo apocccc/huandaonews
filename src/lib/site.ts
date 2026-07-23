@@ -17,6 +17,18 @@ export function articlePath(categorySlug: string, articleSlug: string): string {
 }
 
 /** 台北時間で日時を表示する */
+/** 一覧・サイドバー用の短い日時表記 (MM/DD HH:mm) */
+export function formatTaipeiShort(date: Date, locale: string): string {
+  return new Intl.DateTimeFormat(locale === "en" ? "en-US" : "zh-TW", {
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: TAIPEI_TZ,
+  }).format(date);
+}
+
 export function formatTaipei(
   date: Date,
   locale: string,

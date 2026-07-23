@@ -57,6 +57,9 @@ export default async function ArticleEditPage({
         heroImageId: article.heroImageId,
         heroImageUrl: article.heroImage?.url ?? null,
         publishAt: article.publishAt?.toISOString() ?? null,
+        sourceName: article.sourceName,
+        isRssImported: Boolean(article.sourceFeedId || article.sourceName),
+        isRewritten: article.isRewritten,
       }}
       categories={categories.map((c) => ({
         id: c.id,

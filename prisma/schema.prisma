@@ -57,6 +57,7 @@ model Category {
   isVisible Boolean @default(true)
 
   articles Article[]
+  rssFeeds RssFeed[]
 
   @@index([order])
 }
@@ -76,6 +77,15 @@ model Article {
   isPinned     Boolean       @default(false)
   prSourceName String?
   viewCount    Int           @default(0)
+
+  // RSS取り込み関連。sourceGuid で重複を防ぎ「先に入ってきたものを優先」
+  sourceFeedId String?
+  sourceFeed   RssFeed? @relation(fields: [sourceFeedId], references: [id], onDelete: SetNull)
+  sourceName   String?
+  sourceUrl    String?
+  sourceGuid   String?  @unique
+  // OpenAI による独自記事化が済んだら true(本文の転載元表記を外し、画像出典のみ残す)
+  isRewritten  Boolean  @default(false)
 
   categoryId  String
   category    Category @relation(fields: [categoryId], references: [id])
@@ -132,6 +142,22 @@ model Media {
   uploadedBy String
   uploader   User     @relation(fields: [uploadedBy], references: [id])
   createdAt  DateTime @default(now())
+
+  articles Article[]
+}
+
+model RssFeed {
+  id                String    @id @default(cuid())
+  name              String
+  url               String    @unique
+  categoryId        String
+  category          Category  @relation(fields: [categoryId], references: [id])
+  autoPublish       Boolean   @default(true)
+  isEnabled         Boolean   @default(true)
+  lastFetchedAt     DateTime?
+  lastError         String?
+  lastImportedCount Int       @default(0)
+  createdAt         DateTime  @default(now())
 
   articles Article[]
 }

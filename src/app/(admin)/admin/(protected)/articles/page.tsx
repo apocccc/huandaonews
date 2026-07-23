@@ -156,8 +156,26 @@ export default async function ArticlesPage({
                       href={`/admin/articles/${a.id}`}
                       className="font-medium hover:text-primary"
                     >
+                      {a.sourceFeedId || a.sourceName ? (
+                        <span
+                          className="mr-1.5 inline-block rounded-sm bg-amber-100 px-1.5 py-0.5 align-middle text-[10px] font-black text-amber-800"
+                          title={a.sourceName ?? undefined}
+                        >
+                          {t("rewrite.rssBadge")}
+                        </span>
+                      ) : null}
+                      {a.isRewritten ? (
+                        <span className="mr-1.5 inline-block rounded-sm bg-green-100 px-1.5 py-0.5 align-middle text-[10px] font-black text-green-800">
+                          {t("rewrite.rewrittenBadge")}
+                        </span>
+                      ) : null}
                       {a.title || t("articles.untitled")}
                     </Link>
+                    {a.sourceName ? (
+                      <span className="ml-1.5 text-xs text-gray">
+                        {a.sourceName}
+                      </span>
+                    ) : null}
                   </td>
                   <td className="px-4 py-2.5">
                     <span

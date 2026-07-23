@@ -5,6 +5,7 @@
       "dashboard": "ダッシュボード",
       "articles": "記事",
       "media": "メディア",
+      "rss": "RSS取り込み",
       "categories": "カテゴリー",
       "tags": "タグ",
       "users": "ユーザー",
@@ -87,6 +88,33 @@
       "revisions": "リビジョン履歴",
       "restore": "この版へ復元",
       "uploadImage": "画像を挿入"
+    },
+    "rss": {
+      "title": "RSS取り込み",
+      "description": "他メディアのRSSをカテゴリーごとに登録し、記事と画像を自動で取り込みます。重複記事は先に取り込まれたものを優先します。",
+      "empty": "RSSソースが未登録です",
+      "name": "取得元メディア名",
+      "namePlaceholder": "例:台湾産経新聞網",
+      "category": "取り込み先カテゴリー",
+      "autoPublish": "自動公開",
+      "autoPublishHint": "ON=取り込み後に審査なしで即公開/OFF=「レビュー待ち」に入り、承認後に公開",
+      "enabled": "有効",
+      "fetchNow": "今すぐ取得",
+      "lastFetched": "最終取得",
+      "importedTotal": "累計取り込み",
+      "error": "エラー",
+      "save": "保存",
+      "delete": "削除",
+      "add": "RSSソースを追加"
+    },
+    "rewrite": {
+      "button": "AIで独自記事化",
+      "confirm": "OpenAIでこの記事を自社の独自記事に書き直しますか?(事実は同一・画像は保持。書き直し後は転載元表記が外れます)",
+      "running": "AIで書き直し中…",
+      "done": "独自記事化が完了しました",
+      "rewrittenBadge": "独自化済み",
+      "rssBadge": "RSS",
+      "error": "書き直しに失敗しました"
     },
     "categories": {
       "title": "カテゴリー",

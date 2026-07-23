@@ -5,6 +5,7 @@
       "dashboard": "Dashboard",
       "articles": "Articles",
       "media": "Media",
+      "rss": "RSS Sources",
       "categories": "Categories",
       "tags": "Tags",
       "users": "Users",
@@ -87,6 +88,33 @@
       "revisions": "Revisions",
       "restore": "Restore this version",
       "uploadImage": "Insert image"
+    },
+    "rss": {
+      "title": "RSS Sources",
+      "description": "Register RSS feeds from other media to auto-import articles and images per category. Duplicates keep the first imported article.",
+      "empty": "No RSS sources registered yet",
+      "name": "Source media name",
+      "namePlaceholder": "e.g. Taiwan Business News",
+      "category": "Import category",
+      "autoPublish": "Auto-publish",
+      "autoPublishHint": "Checked = publish immediately without review / Unchecked = imported as \"In review\" and published after approval",
+      "enabled": "Enabled",
+      "fetchNow": "Fetch now",
+      "lastFetched": "Last fetched",
+      "importedTotal": "Total imported",
+      "error": "Error",
+      "save": "Save",
+      "delete": "Delete",
+      "add": "Add RSS source"
+    },
+    "rewrite": {
+      "button": "Rewrite as original with AI",
+      "confirm": "Rewrite this article as our own original story with OpenAI? (Facts unchanged, images kept; the reprint attribution will be removed.)",
+      "running": "Rewriting with AI…",
+      "done": "Rewritten as original",
+      "rewrittenBadge": "Rewritten",
+      "rssBadge": "RSS",
+      "error": "Rewrite failed"
     },
     "categories": {
       "title": "Categories",

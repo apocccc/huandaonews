@@ -19,6 +19,7 @@ import {
   restoreRevisionAction,
   saveArticleAction,
 } from "@/app/(admin)/admin/actions";
+import { rewriteArticleAction } from "@/app/(admin)/admin/rss-actions";
 
 type EditorArticle = {
   id: string;
@@ -36,6 +37,9 @@ type EditorArticle = {
   heroImageId: string | null;
   heroImageUrl: string | null;
   publishAt: string | null;
+  sourceName: string | null;
+  isRssImported: boolean;
+  isRewritten: boolean;
 };
 
 type CategoryOption = { id: string; slug: string; nameZh: string };
@@ -56,6 +60,9 @@ export function ArticleEditor({
 }) {
   const t = useTranslations("admin.editor");
   const ts = useTranslations("admin.status");
+  const tr = useTranslations("admin.rewrite");
+  const [rewriting, setRewriting] = useState(false);
+  const [rewriteError, setRewriteError] = useState<string | null>(null);
   const [title, setTitle] = useState(article.title);
   const [lead, setLead] = useState(article.lead);
   const [slug, setSlug] = useState(article.slug);
@@ -221,6 +228,17 @@ export function ArticleEditor({
           <span className="rounded-full bg-bg px-3 py-1 font-medium border border-line">
             {ts(status)}
           </span>
+          {article.isRssImported ? (
+            <span className="rounded-sm bg-amber-100 px-1.5 py-0.5 text-[11px] font-black text-amber-800">
+              {tr("rssBadge")}
+              {article.sourceName ? ` · ${article.sourceName}` : ""}
+            </span>
+          ) : null}
+          {article.isRewritten ? (
+            <span className="rounded-sm bg-green-100 px-1.5 py-0.5 text-[11px] font-black text-green-800">
+              {tr("rewrittenBadge")}
+            </span>
+          ) : null}
           <span className="text-xs text-gray">
             {saveState === "saving"
               ? t("saving")
@@ -230,6 +248,27 @@ export function ArticleEditor({
           </span>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          {article.isRssImported && !article.isRewritten ? (
+            <button
+              type="button"
+              disabled={rewriting}
+              onClick={async () => {
+                if (!window.confirm(tr("confirm"))) return;
+                setRewriting(true);
+                setRewriteError(null);
+                const result = await rewriteArticleAction(article.id);
+                if (result.ok) {
+                  window.location.reload();
+                } else {
+                  setRewriteError(result.error);
+                  setRewriting(false);
+                }
+              }}
+              className="rounded bg-ink px-3 py-1.5 text-sm font-bold text-white hover:bg-ink/80 disabled:opacity-50"
+            >
+              {rewriting ? tr("running") : `✦ ${tr("button")}`}
+            </button>
+          ) : null}
           <a
             href={`/preview/${article.id}?token=${previewToken}`}
             target="_blank"
@@ -298,6 +337,12 @@ export function ArticleEditor({
           ) : null}
         </div>
       </div>
+
+      {rewriteError ? (
+        <p className="mt-3 rounded bg-primary-light px-3 py-2 text-sm text-primary-dark">
+          {tr("error")}: {rewriteError}
+        </p>
+      ) : null}
 
       <div className="mt-5 grid gap-6 lg:grid-cols-[1fr_280px]">
         {/* メインカラム */}

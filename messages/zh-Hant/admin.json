@@ -5,6 +5,7 @@
       "dashboard": "儀表板",
       "articles": "文章",
       "media": "媒體庫",
+      "rss": "RSS 來源",
       "categories": "分類",
       "tags": "標籤",
       "users": "使用者",
@@ -87,6 +88,33 @@
       "revisions": "修訂紀錄",
       "restore": "還原此版本",
       "uploadImage": "插入圖片"
+    },
+    "rss": {
+      "title": "RSS 來源",
+      "description": "登錄其他媒體的 RSS,依分類自動匯入文章與圖片。重複的文章以先匯入者優先。",
+      "empty": "尚未登錄任何 RSS 來源",
+      "name": "來源媒體名稱",
+      "namePlaceholder": "例:台灣產經新聞網",
+      "category": "匯入分類",
+      "autoPublish": "自動公開",
+      "autoPublishHint": "勾選=匯入後不經審核立即公開/不勾選=進入「待審核」,由編輯核准後才公開",
+      "enabled": "啟用",
+      "fetchNow": "立即抓取",
+      "lastFetched": "上次抓取",
+      "importedTotal": "累計匯入",
+      "error": "錯誤",
+      "save": "儲存",
+      "delete": "刪除",
+      "add": "新增 RSS 來源"
+    },
+    "rewrite": {
+      "button": "AI 改寫為原創報導",
+      "confirm": "以 OpenAI 將本文改寫為本站原創報導?(事實不變、圖片保留,改寫後不再顯示轉載來源)",
+      "running": "AI 改寫中…",
+      "done": "已改寫為原創報導",
+      "rewrittenBadge": "已原創化",
+      "rssBadge": "RSS",
+      "error": "改寫失敗"
     },
     "categories": {
       "title": "分類",

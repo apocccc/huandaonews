@@ -208,9 +208,13 @@ export default async function ArticlePage({
                       className="object-cover"
                     />
                   </div>
-                  {article.heroImage.alt ? (
+                  {article.heroImage.alt || article.sourceName ? (
                     <figcaption className="mt-2 text-xs text-gray">
                       {article.heroImage.alt}
+                      {/* 転載画像の出典は独自記事化後も常に表示する */}
+                      {article.sourceName
+                        ? `${article.heroImage.alt ? " " : ""}(${t("labels.imageSource")}:${article.sourceName})`
+                        : ""}
                     </figcaption>
                   ) : null}
                 </figure>
@@ -221,6 +225,29 @@ export default async function ArticlePage({
               className="article-body mt-7"
               dangerouslySetInnerHTML={{ __html: bodyHtml }}
             />
+
+            {/* RSS転載記事の出典表記(AIで独自記事化済みの場合は非表示) */}
+            {article.sourceName && !article.isRewritten ? (
+              <div className="mt-8 rounded-md bg-bg-sub px-4 py-3 text-sm text-gray">
+                {t("labels.sourceFrom")}
+                <span className="font-medium text-ink">
+                  《{article.sourceName}》
+                </span>
+                {article.sourceUrl ? (
+                  <>
+                    {" · "}
+                    <a
+                      href={article.sourceUrl}
+                      target="_blank"
+                      rel="noopener nofollow"
+                      className="text-primary underline underline-offset-2 hover:text-primary-dark"
+                    >
+                      {t("labels.originalArticle")}
+                    </a>
+                  </>
+                ) : null}
+              </div>
+            ) : null}
 
             <footer className="mt-8 border-t border-line pt-4">
               <div className="flex flex-wrap items-center justify-between gap-3">

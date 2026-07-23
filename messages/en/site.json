@@ -1,0 +1,75 @@
+{
+  "site": {
+    "name": "Huandao News",
+    "tagline": "Taiwan's pulse, around the island",
+    "description": "Huandao News is a Taiwan-focused news and lifestyle site covering politics, society, business, tech, and daily life."
+  },
+  "nav": {
+    "home": "Home",
+    "search": "Search",
+    "menu": "Menu",
+    "allCategories": "All categories"
+  },
+  "labels": {
+    "breaking": "Breaking",
+    "pinned": "Top",
+    "latestNews": "Latest News",
+    "topStories": "Top Stories",
+    "relatedArticles": "Related Articles",
+    "pressRelease": "Press Release",
+    "pressReleaseNotice": "This article is a press release provided by the organization named below, which is responsible for its content.",
+    "prSource": "Source",
+    "byAuthor": "By",
+    "publishedAt": "Published",
+    "updatedAt": "Updated",
+    "tags": "Tags",
+    "share": "Share",
+    "readMore": "Read more",
+    "viewAll": "View all",
+    "noArticles": "No articles yet.",
+    "page": "Page {page}",
+    "prevPage": "Previous",
+    "nextPage": "Next",
+    "articleCount": "{count} articles"
+  },
+  "search": {
+    "title": "Search",
+    "placeholder": "Search news…",
+    "resultsFor": "Search results for \"{query}\"",
+    "noResults": "No articles found for \"{query}\".",
+    "button": "Search"
+  },
+  "author": {
+    "articlesBy": "Articles by {name}"
+  },
+  "tag": {
+    "articlesTagged": "Tag: {tag}"
+  },
+  "footer": {
+    "about": "About",
+    "contact": "Contact",
+    "privacy": "Privacy Policy",
+    "rss": "RSS Feeds",
+    "copyright": "© {year} Huandao News. All rights reserved."
+  },
+  "pages": {
+    "about": {
+      "title": "About Us",
+      "body": "Huandao News is a Taiwan-focused news and lifestyle site. We believe news is more than breaking headlines — it is a tool for understanding daily life. From politics and society to travel and food, we go around the island with you."
+    },
+    "contact": {
+      "title": "Contact",
+      "body": "News tips, partnerships, and press release submissions are welcome. We will get back to you as soon as possible.",
+      "email": "Email"
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "body": "Huandao News respects your privacy. We collect and use data only to the minimum extent necessary to provide our services, and we do not share your personal data with third parties. This policy will be updated as our services evolve."
+    }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you are looking for does not exist or has been moved.",
+    "backHome": "Back to home"
+  }
+}

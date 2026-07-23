@@ -1,0 +1,121 @@
+{
+  "admin": {
+    "title": "Huandao News Admin",
+    "nav": {
+      "dashboard": "Dashboard",
+      "articles": "Articles",
+      "media": "Media",
+      "categories": "Categories",
+      "tags": "Tags",
+      "users": "Users",
+      "redirects": "Redirects",
+      "settings": "Settings",
+      "viewSite": "View site",
+      "signOut": "Sign out"
+    },
+    "login": {
+      "title": "Sign in to Admin",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign in",
+      "error": "Invalid email or password"
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "publishedToday": "Published today",
+      "publishedThisWeek": "Published this week",
+      "inReview": "In review",
+      "drafts": "Drafts",
+      "topArticles": "Top articles",
+      "reviewQueue": "Review queue",
+      "recentDrafts": "Recent drafts",
+      "views": "Views",
+      "empty": "No data"
+    },
+    "articles": {
+      "title": "Articles",
+      "new": "New article",
+      "searchPlaceholder": "Search titles…",
+      "filterStatus": "Status",
+      "filterCategory": "Category",
+      "all": "All",
+      "columns": {
+        "title": "Title",
+        "status": "Status",
+        "category": "Category",
+        "author": "Author",
+        "publishedAt": "Published",
+        "updatedAt": "Updated"
+      },
+      "empty": "No matching articles",
+      "untitled": "(untitled)"
+    },
+    "status": {
+      "draft": "Draft",
+      "review": "In review",
+      "scheduled": "Scheduled",
+      "published": "Published",
+      "archived": "Archived"
+    },
+    "editor": {
+      "titlePlaceholder": "Enter title…",
+      "leadLabel": "Lead (used as meta description, ~160 chars)",
+      "leadPlaceholder": "Enter lead…",
+      "slugLabel": "Slug",
+      "slugLocked": "The URL cannot be changed after publishing",
+      "category": "Category",
+      "tagsLabel": "Tags (comma separated)",
+      "heroImage": "Hero image",
+      "heroImageAlt": "Hero image alt text",
+      "prSourceName": "Press release source",
+      "isBreaking": "Breaking",
+      "isPinned": "Pinned",
+      "publishAt": "Scheduled publish time",
+      "save": "Save",
+      "saved": "Saved",
+      "saving": "Saving…",
+      "publish": "Publish",
+      "unpublish": "Unpublish",
+      "submitReview": "Submit for review",
+      "backToDraft": "Back to draft",
+      "preview": "Preview",
+      "delete": "Delete",
+      "deleteConfirm": "Delete this article?",
+      "wordCount": "{count} characters",
+      "autosaveOn": "Autosaves every 30 seconds",
+      "bodyPlaceholder": "Start writing…",
+      "revisions": "Revisions",
+      "restore": "Restore this version",
+      "uploadImage": "Insert image"
+    },
+    "categories": {
+      "title": "Categories",
+      "nameZh": "Chinese name",
+      "nameEn": "English name",
+      "slug": "Slug",
+      "order": "Order",
+      "visible": "Visible",
+      "save": "Save",
+      "add": "Add category"
+    },
+    "users": {
+      "title": "Users",
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "locale": "Admin language",
+      "add": "Add user",
+      "password": "Password"
+    },
+    "common": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit",
+      "create": "Create",
+      "loading": "Loading…",
+      "error": "Something went wrong. Please try again.",
+      "language": "Interface language"
+    }
+  }
+}

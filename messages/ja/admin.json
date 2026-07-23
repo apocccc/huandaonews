@@ -1,0 +1,121 @@
+{
+  "admin": {
+    "title": "環島新聞網 管理画面",
+    "nav": {
+      "dashboard": "ダッシュボード",
+      "articles": "記事",
+      "media": "メディア",
+      "categories": "カテゴリー",
+      "tags": "タグ",
+      "users": "ユーザー",
+      "redirects": "リダイレクト",
+      "settings": "設定",
+      "viewSite": "サイトを表示",
+      "signOut": "ログアウト"
+    },
+    "login": {
+      "title": "管理画面にログイン",
+      "email": "メールアドレス",
+      "password": "パスワード",
+      "submit": "ログイン",
+      "error": "メールアドレスまたはパスワードが違います"
+    },
+    "dashboard": {
+      "title": "ダッシュボード",
+      "publishedToday": "本日の公開",
+      "publishedThisWeek": "今週の公開",
+      "inReview": "レビュー待ち",
+      "drafts": "下書き",
+      "topArticles": "人気記事",
+      "reviewQueue": "レビュー待ち記事",
+      "recentDrafts": "最近の下書き",
+      "views": "閲覧数",
+      "empty": "データがありません"
+    },
+    "articles": {
+      "title": "記事",
+      "new": "新規記事",
+      "searchPlaceholder": "タイトルを検索…",
+      "filterStatus": "ステータス",
+      "filterCategory": "カテゴリー",
+      "all": "すべて",
+      "columns": {
+        "title": "タイトル",
+        "status": "ステータス",
+        "category": "カテゴリー",
+        "author": "著者",
+        "publishedAt": "公開日時",
+        "updatedAt": "更新日時"
+      },
+      "empty": "該当する記事がありません",
+      "untitled": "(無題)"
+    },
+    "status": {
+      "draft": "下書き",
+      "review": "レビュー待ち",
+      "scheduled": "予約公開",
+      "published": "公開中",
+      "archived": "非公開"
+    },
+    "editor": {
+      "titlePlaceholder": "タイトルを入力…",
+      "leadLabel": "リード文(meta description 兼用、160字目安)",
+      "leadPlaceholder": "リード文を入力…",
+      "slugLabel": "スラッグ",
+      "slugLocked": "公開後はURLを変更できません",
+      "category": "カテゴリー",
+      "tagsLabel": "タグ(カンマ区切り)",
+      "heroImage": "アイキャッチ画像",
+      "heroImageAlt": "アイキャッチ画像の代替テキスト (alt)",
+      "prSourceName": "プレスリリース配信元",
+      "isBreaking": "速報",
+      "isPinned": "トップ固定",
+      "publishAt": "予約公開日時",
+      "save": "保存",
+      "saved": "保存済み",
+      "saving": "保存中…",
+      "publish": "公開",
+      "unpublish": "非公開にする",
+      "submitReview": "レビュー依頼",
+      "backToDraft": "下書きに戻す",
+      "preview": "プレビュー",
+      "delete": "削除",
+      "deleteConfirm": "この記事を削除しますか?",
+      "wordCount": "{count} 文字",
+      "autosaveOn": "30秒ごとに自動保存",
+      "bodyPlaceholder": "本文を入力…",
+      "revisions": "リビジョン履歴",
+      "restore": "この版へ復元",
+      "uploadImage": "画像を挿入"
+    },
+    "categories": {
+      "title": "カテゴリー",
+      "nameZh": "中国語名",
+      "nameEn": "英語名",
+      "slug": "スラッグ",
+      "order": "並び順",
+      "visible": "表示",
+      "save": "保存",
+      "add": "カテゴリーを追加"
+    },
+    "users": {
+      "title": "ユーザー",
+      "name": "名前",
+      "email": "メールアドレス",
+      "role": "ロール",
+      "locale": "管理画面の言語",
+      "add": "ユーザーを追加",
+      "password": "パスワード"
+    },
+    "common": {
+      "save": "保存",
+      "cancel": "キャンセル",
+      "delete": "削除",
+      "edit": "編集",
+      "create": "作成",
+      "loading": "読み込み中…",
+      "error": "エラーが発生しました。時間をおいて再試行してください",
+      "language": "表示言語"
+    }
+  }
+}

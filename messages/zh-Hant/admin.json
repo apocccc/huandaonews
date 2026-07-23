@@ -1,0 +1,121 @@
+{
+  "admin": {
+    "title": "環島新聞網 管理後台",
+    "nav": {
+      "dashboard": "儀表板",
+      "articles": "文章",
+      "media": "媒體庫",
+      "categories": "分類",
+      "tags": "標籤",
+      "users": "使用者",
+      "redirects": "轉址",
+      "settings": "設定",
+      "viewSite": "檢視網站",
+      "signOut": "登出"
+    },
+    "login": {
+      "title": "登入管理後台",
+      "email": "電子郵件",
+      "password": "密碼",
+      "submit": "登入",
+      "error": "電子郵件或密碼錯誤"
+    },
+    "dashboard": {
+      "title": "儀表板",
+      "publishedToday": "今日發布",
+      "publishedThisWeek": "本週發布",
+      "inReview": "待審核",
+      "drafts": "草稿",
+      "topArticles": "熱門文章",
+      "reviewQueue": "待審核文章",
+      "recentDrafts": "最近的草稿",
+      "views": "瀏覽數",
+      "empty": "沒有資料"
+    },
+    "articles": {
+      "title": "文章",
+      "new": "新增文章",
+      "searchPlaceholder": "搜尋標題…",
+      "filterStatus": "狀態",
+      "filterCategory": "分類",
+      "all": "全部",
+      "columns": {
+        "title": "標題",
+        "status": "狀態",
+        "category": "分類",
+        "author": "作者",
+        "publishedAt": "發布時間",
+        "updatedAt": "更新時間"
+      },
+      "empty": "沒有符合條件的文章",
+      "untitled": "(未命名)"
+    },
+    "status": {
+      "draft": "草稿",
+      "review": "待審核",
+      "scheduled": "已排程",
+      "published": "已發布",
+      "archived": "已下架"
+    },
+    "editor": {
+      "titlePlaceholder": "輸入標題…",
+      "leadLabel": "前言(同時作為 meta description,約160字)",
+      "leadPlaceholder": "輸入前言…",
+      "slugLabel": "網址代稱 (slug)",
+      "slugLocked": "已發布的文章無法變更網址",
+      "category": "分類",
+      "tagsLabel": "標籤(以逗號分隔)",
+      "heroImage": "主圖",
+      "heroImageAlt": "主圖替代文字 (alt)",
+      "prSourceName": "新聞稿發布單位",
+      "isBreaking": "快訊",
+      "isPinned": "置頂",
+      "publishAt": "排程發布時間",
+      "save": "儲存",
+      "saved": "已儲存",
+      "saving": "儲存中…",
+      "publish": "發布",
+      "unpublish": "下架",
+      "submitReview": "送審",
+      "backToDraft": "退回草稿",
+      "preview": "預覽",
+      "delete": "刪除",
+      "deleteConfirm": "確定要刪除這篇文章嗎?",
+      "wordCount": "{count} 字",
+      "autosaveOn": "每30秒自動儲存",
+      "bodyPlaceholder": "開始撰寫內文…",
+      "revisions": "修訂紀錄",
+      "restore": "還原此版本",
+      "uploadImage": "插入圖片"
+    },
+    "categories": {
+      "title": "分類",
+      "nameZh": "中文名稱",
+      "nameEn": "英文名稱",
+      "slug": "代稱",
+      "order": "排序",
+      "visible": "顯示",
+      "save": "儲存",
+      "add": "新增分類"
+    },
+    "users": {
+      "title": "使用者",
+      "name": "姓名",
+      "email": "電子郵件",
+      "role": "角色",
+      "locale": "後台語言",
+      "add": "新增使用者",
+      "password": "密碼"
+    },
+    "common": {
+      "save": "儲存",
+      "cancel": "取消",
+      "delete": "刪除",
+      "edit": "編輯",
+      "create": "新增",
+      "loading": "載入中…",
+      "error": "發生錯誤,請稍後再試",
+      "language": "介面語言"
+    }
+  }
+}

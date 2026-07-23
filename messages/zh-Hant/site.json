@@ -1,0 +1,75 @@
+{
+  "site": {
+    "name": "環島新聞網",
+    "tagline": "掌握台灣脈動,環島即時新聞",
+    "description": "環島新聞網是面向台灣讀者的綜合新聞與生活資訊網站,提供政治、社會、財經、科技、生活等即時報導。"
+  },
+  "nav": {
+    "home": "首頁",
+    "search": "搜尋",
+    "menu": "選單",
+    "allCategories": "全部分類"
+  },
+  "labels": {
+    "breaking": "快訊",
+    "pinned": "焦點",
+    "latestNews": "最新新聞",
+    "topStories": "焦點新聞",
+    "relatedArticles": "相關報導",
+    "pressRelease": "新聞稿",
+    "pressReleaseNotice": "本文為企業/機構提供之新聞稿,內容由提供單位負責。",
+    "prSource": "發布單位",
+    "byAuthor": "記者",
+    "publishedAt": "發布時間",
+    "updatedAt": "更新時間",
+    "tags": "標籤",
+    "share": "分享",
+    "readMore": "更多報導",
+    "viewAll": "看更多",
+    "noArticles": "目前沒有文章。",
+    "page": "第 {page} 頁",
+    "prevPage": "上一頁",
+    "nextPage": "下一頁",
+    "articleCount": "{count} 篇文章"
+  },
+  "search": {
+    "title": "搜尋",
+    "placeholder": "搜尋新聞…",
+    "resultsFor": "「{query}」的搜尋結果",
+    "noResults": "找不到符合「{query}」的文章。",
+    "button": "搜尋"
+  },
+  "author": {
+    "articlesBy": "{name} 的報導"
+  },
+  "tag": {
+    "articlesTagged": "標籤:{tag}"
+  },
+  "footer": {
+    "about": "關於我們",
+    "contact": "聯絡我們",
+    "privacy": "隱私權政策",
+    "rss": "RSS 訂閱",
+    "copyright": "© {year} 環島新聞網 版權所有"
+  },
+  "pages": {
+    "about": {
+      "title": "關於我們",
+      "body": "環島新聞網是面向台灣讀者的綜合新聞與生活資訊網站。我們相信新聞不只是速報,更是幫助讀者理解生活的工具。從政治、社會到旅遊、美食,我們希望陪你環島一圈,看見台灣的每個角落。"
+    },
+    "contact": {
+      "title": "聯絡我們",
+      "body": "新聞爆料、業務合作、新聞稿發布,歡迎來信。我們會盡快回覆。",
+      "email": "聯絡信箱"
+    },
+    "privacy": {
+      "title": "隱私權政策",
+      "body": "環島新聞網重視您的隱私。本網站僅在提供服務所需的最小範圍內蒐集與使用資料,不會將您的個人資料提供給第三方。詳細內容將隨服務更新持續補充。"
+    }
+  },
+  "notFound": {
+    "title": "找不到頁面",
+    "description": "您要找的頁面不存在或已被移動。",
+    "backHome": "回到首頁"
+  }
+}

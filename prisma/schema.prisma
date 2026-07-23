@@ -1,0 +1,150 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  admin
+  editor
+  author
+  contributor
+}
+
+enum ArticleStatus {
+  draft
+  review
+  scheduled
+  published
+  archived
+}
+
+enum AdminLocale {
+  zh_Hant
+  en
+  ja
+}
+
+model User {
+  id           String      @id @default(cuid())
+  email        String      @unique
+  passwordHash String
+  name         String
+  slug         String      @unique
+  role         Role        @default(contributor)
+  adminLocale  AdminLocale @default(zh_Hant)
+  avatarUrl    String?
+  bio          String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  articles  Article[]
+  revisions Revision[]
+  media     Media[]
+
+  @@index([role])
+}
+
+model Category {
+  id        String  @id @default(cuid())
+  slug      String  @unique
+  nameZh    String
+  nameEn    String
+  order     Int     @default(0)
+  isVisible Boolean @default(true)
+
+  articles Article[]
+
+  @@index([order])
+}
+
+model Article {
+  id           String        @id @default(cuid())
+  slug         String        @unique
+  title        String
+  lead         String        @default("")
+  body         Json
+  status       ArticleStatus @default(draft)
+  publishAt    DateTime?
+  publishedAt  DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  isBreaking   Boolean       @default(false)
+  isPinned     Boolean       @default(false)
+  prSourceName String?
+  viewCount    Int           @default(0)
+
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id])
+  heroImageId String?
+  heroImage   Media?   @relation(fields: [heroImageId], references: [id])
+
+  tags      ArticleTag[]
+  revisions Revision[]
+
+  @@index([status, publishedAt(sort: Desc)])
+  @@index([categoryId, status, publishedAt(sort: Desc)])
+  @@index([authorId, status])
+  @@index([status, publishAt])
+}
+
+model Revision {
+  id        String   @id @default(cuid())
+  articleId String
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  snapshot  Json
+  editedBy  String
+  editor    User     @relation(fields: [editedBy], references: [id])
+  createdAt DateTime @default(now())
+
+  @@index([articleId, createdAt(sort: Desc)])
+}
+
+model Tag {
+  id     String @id @default(cuid())
+  slug   String @unique
+  nameZh String
+
+  articles ArticleTag[]
+}
+
+model ArticleTag {
+  articleId String
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  tagId     String
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([articleId, tagId])
+}
+
+model Media {
+  id         String   @id @default(cuid())
+  url        String
+  width      Int
+  height     Int
+  alt        String   @default("")
+  mimeType   String
+  uploadedBy String
+  uploader   User     @relation(fields: [uploadedBy], references: [id])
+  createdAt  DateTime @default(now())
+
+  articles Article[]
+}
+
+model Redirect {
+  id         String   @id @default(cuid())
+  fromPath   String   @unique
+  toPath     String
+  statusCode Int      @default(301)
+  createdAt  DateTime @default(now())
+}
+
+model Setting {
+  key   String @id
+  value Json
+}

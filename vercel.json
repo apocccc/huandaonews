@@ -1,5 +1,6 @@
 {
   "buildCommand": "npx prisma migrate deploy && next build",
+  "regions": ["icn1"],
   "crons": [
     {
       "path": "/api/cron/publish",

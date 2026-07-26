@@ -3,7 +3,7 @@ import { createHash } from "crypto";
 import { generateJSON } from "@tiptap/html";
 import type { JSONContent } from "@tiptap/core";
 import { prisma } from "@/lib/prisma";
-import { bodyExtensions, extractText } from "@/lib/tiptap";
+import { bodyExtensions, extractText, linkifyDoc } from "@/lib/tiptap";
 import { storeRemoteImage } from "@/lib/media-store";
 import { dateStamp } from "@/lib/slug";
 import { revalidateArticle } from "@/lib/revalidate";
@@ -242,7 +242,7 @@ export async function importFeed(
       // Tiptap JSON 化(対応ノード以外は落ちるため、実質サニタイズを兼ねる)
       let body: JSONContent;
       try {
-        body = generateJSON(html || `<p>${title}</p>`, bodyExtensions);
+        body = linkifyDoc(generateJSON(html || `<p>${title}</p>`, bodyExtensions));
       } catch {
         body = {
           type: "doc",

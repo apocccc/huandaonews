@@ -31,10 +31,61 @@ export const bodyExtensions = [
   Youtube.configure({ nocookie: true }),
 ];
 
+/** テキスト中のURL(リンク未設定のもの)を検出する */
+const URL_RE = /https?:\/\/[^\s<>"'　-〿「」（）]+/g;
+
+function linkifyNode(node: JSONContent): JSONContent[] {
+  // 既にリンクが付いているテキストはそのまま
+  if (
+    node.type === "text" &&
+    typeof node.text === "string" &&
+    !node.marks?.some((m) => m.type === "link")
+  ) {
+    const text = node.text;
+    const parts: JSONContent[] = [];
+    let last = 0;
+    URL_RE.lastIndex = 0;
+    let m: RegExpExecArray | null;
+    while ((m = URL_RE.exec(text)) !== null) {
+      // 末尾の句読点類はリンクに含めない
+      const url = m[0].replace(/[.,;:!?)\]}]+$/, "");
+      if (m.index > last) {
+        parts.push({ ...node, text: text.slice(last, m.index) });
+      }
+      parts.push({
+        ...node,
+        text: url,
+        marks: [
+          ...(node.marks ?? []),
+          {
+            type: "link",
+            attrs: { href: url, target: "_blank" },
+          },
+        ],
+      });
+      last = m.index + url.length;
+    }
+    if (parts.length === 0) return [node];
+    if (last < text.length) parts.push({ ...node, text: text.slice(last) });
+    return parts;
+  }
+  if (node.content) {
+    return [{ ...node, content: node.content.flatMap(linkifyNode) }];
+  }
+  return [node];
+}
+
+/** 本文中のプレーンテキストURLをリンクへ変換する */
+export function linkifyDoc(doc: JSONContent): JSONContent {
+  if (!doc.content) return doc;
+  return { ...doc, content: doc.content.flatMap(linkifyNode) };
+}
+
 export function renderArticleHtml(body: unknown): string {
   if (!body || typeof body !== "object") return "";
   try {
-    return generateHTML(body as JSONContent, bodyExtensions);
+    // 既存記事も表示時にURLを自動リンク化する
+    return generateHTML(linkifyDoc(body as JSONContent), bodyExtensions);
   } catch (e) {
     console.error("[tiptap] failed to render body:", e);
     return "";

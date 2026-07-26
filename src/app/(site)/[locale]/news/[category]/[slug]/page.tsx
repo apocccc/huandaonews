@@ -144,6 +144,18 @@ export default async function ArticlePage({
                 ) : null}
               </div>
 
+              {/* 新聞稿: 引用元メディアをタイトル上に目立つ形で表示 */}
+              {isPressRelease && article.sourceName ? (
+                <div className="mt-3 flex items-center gap-3 rounded-md border-l-4 border-primary bg-primary-light px-4 py-2.5">
+                  <span className="shrink-0 text-xs font-bold text-primary-dark">
+                    {t("labels.prProvidedBy")}
+                  </span>
+                  <span className="text-lg font-black text-primary-dark">
+                    {article.sourceName}
+                  </span>
+                </div>
+              ) : null}
+
               <h1 className="mt-3 text-[26px] font-black leading-snug sm:text-[30px]">
                 {article.title}
               </h1>

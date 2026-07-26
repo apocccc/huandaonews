@@ -7,6 +7,7 @@ import { inter, notoSansTC } from "@/lib/fonts";
 import { getVisibleCategories } from "@/lib/data";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
+import { GoogleAnalytics } from "@/components/site/GoogleAnalytics";
 import { JsonLd } from "@/components/JsonLd";
 import { organizationJsonLd, webSiteJsonLd } from "@/lib/seo";
 import { absoluteUrl, SITE_URL } from "@/lib/site";
@@ -69,6 +70,10 @@ export default async function SiteLayout({
         className={`${notoSansTC.variable} ${inter.variable} font-sans bg-bg text-ink min-h-screen flex flex-col`}
       >
         <JsonLd data={[organizationJsonLd(), webSiteJsonLd()]} />
+        {/* 公開サイトのみ計測(管理画面は別レイアウトのため対象外) */}
+        {process.env.NEXT_PUBLIC_GA_ID ? (
+          <GoogleAnalytics id={process.env.NEXT_PUBLIC_GA_ID} />
+        ) : null}
         <NextIntlClientProvider>
           <SiteHeader categories={categories} locale={locale} />
           <main className="flex-1">{children}</main>

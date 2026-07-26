@@ -328,6 +328,8 @@ export async function backfillMissingThumbnails(limit = 10): Promise<number> {
       sourceFeedId: { not: null },
       heroImageId: null,
       sourceUrl: { not: null },
+      // 取得できないまま残り続ける記事を永久に再試行しない(直近7日分のみ)
+      createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
     },
     orderBy: { createdAt: "desc" },
     take: limit,

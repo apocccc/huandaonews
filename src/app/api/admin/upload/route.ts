@@ -20,6 +20,9 @@ export async function POST(req: Request) {
   if (!file.type.startsWith("image/")) {
     return NextResponse.json({ error: "not an image" }, { status: 400 });
   }
+  if (file.size > 20 * 1024 * 1024) {
+    return NextResponse.json({ error: "file too large (max 20MB)" }, { status: 413 });
+  }
 
   const input = Buffer.from(await file.arrayBuffer());
   const media = await storeImage(input, alt, session.user.id);

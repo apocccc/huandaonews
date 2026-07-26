@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { runDailyRewrite } from "@/lib/daily-rewrite";
+import { isAuthorizedCron } from "@/lib/cron-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -12,12 +13,8 @@ export const maxDuration = 300;
  * カテゴリーへ記事化する。
  */
 export async function GET(req: Request) {
-  const secret = process.env.CRON_SECRET;
-  if (secret) {
-    const header = req.headers.get("authorization");
-    if (header !== `Bearer ${secret}`) {
-      return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-    }
+  if (!isAuthorizedCron(req)) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
   const summary = await runDailyRewrite();

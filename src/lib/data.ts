@@ -284,11 +284,13 @@ export function getAuthorWithArticles(slug: string, page = 1, perPage = 20) {
 export function searchArticles(query: string, page = 1, perPage = 20) {
   return safe(
     async () => {
+      // 異常に長いクエリでのDB負荷を防ぐ
+      const q = query.slice(0, 100);
       const where: Prisma.ArticleWhereInput = {
         ...publishedWhere,
         OR: [
-          { title: { contains: query, mode: "insensitive" } },
-          { lead: { contains: query, mode: "insensitive" } },
+          { title: { contains: q, mode: "insensitive" } },
+          { lead: { contains: q, mode: "insensitive" } },
         ],
       };
       const [items, total] = await Promise.all([

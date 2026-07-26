@@ -28,7 +28,37 @@ export async function storeImage(
   const filename = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}.webp`;
 
   let url: string;
-  if (process.env.BLOB_READ_WRITE_TOKEN) {
+  if (
+    process.env.R2_BUCKET &&
+    process.env.R2_ENDPOINT &&
+    process.env.R2_ACCESS_KEY_ID &&
+    process.env.R2_SECRET_ACCESS_KEY &&
+    process.env.R2_PUBLIC_BASE_URL
+  ) {
+    // Cloudflare R2 (S3互換)。公開画像はカスタムドメイン(img.*)から配信
+    const { S3Client, PutObjectCommand } = await import("@aws-sdk/client-s3");
+    const client = new S3Client({
+      region: "auto",
+      endpoint: process.env.R2_ENDPOINT,
+      forcePathStyle: true,
+      credentials: {
+        accessKeyId: process.env.R2_ACCESS_KEY_ID,
+        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+      },
+    });
+    const key = `${subdir}/${filename}`;
+    await client.send(
+      new PutObjectCommand({
+        Bucket: process.env.R2_BUCKET,
+        Key: key,
+        Body: webp,
+        ContentType: "image/webp",
+        ContentDisposition: "inline",
+        CacheControl: "public, max-age=31536000, immutable",
+      })
+    );
+    url = `${process.env.R2_PUBLIC_BASE_URL.replace(/\/$/, "")}/${key}`;
+  } else if (process.env.BLOB_READ_WRITE_TOKEN) {
     const { put } = await import("@vercel/blob");
     const blob = await put(`${subdir}/${filename}`, webp, {
       access: "public",

@@ -4,7 +4,11 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  // アプリ実行用: Supabase の transaction pooler (6543, pgbouncer=true&connection_limit=10)
   url      = env("DATABASE_URL")
+  // マイグレーション用: session pooler (5432)。直結 db.<ref>.supabase.co は
+  // IPv6専用のため Vercel からは使わない
+  directUrl = env("DIRECT_DATABASE_URL")
 }
 
 enum Role {

@@ -8,7 +8,7 @@
 ## 1. プロジェクト概要
 
 - **メディア名**: 環島新聞網(正式名)。英語表記は未定のため、当面 `Huandao News` を仮表記として使う。
-- **ドメイン**: `huandaonews.com`(決定済み)。コード内では環境変数 `NEXT_PUBLIC_SITE_URL` を必ず参照し、ドメインをハードコードしない(`src/lib/site.ts` の `SITE_URL` が唯一の参照点。未設定時のフォールバックは `https://huandaonews.com`)。
+- **ドメイン**: `huandaonews.tw`(決定済み・お名前.comで取得、DNSはCloudflare管理)。コード内では環境変数 `NEXT_PUBLIC_SITE_URL` を必ず参照し、ドメインをハードコードしない(`src/lib/site.ts` の `SITE_URL` が唯一の参照点。未設定時のフォールバックは `https://huandaonews.tw`)。公開画像は `img.huandaonews.tw`(Cloudflare R2 カスタムドメイン)。
 - **ポジション**: 台湾ローカル読者向けの総合ニュースメディア。速報だけでなく生活情報・ガイド的な記事も扱う「ニュース+情報サイト」。
 - **ターゲット**: 台湾のデジタル世代。モダンで軽快なUI。
 - **最重要の設計思想**: Google・Googleニュース・各種検索・AI(LLMクローラー)に「引用されやすい」構造を最優先する。記事本文は常に**初期HTMLに完全な形で含まれる**こと(クライアントサイドfetchで本文を後読みしない)。

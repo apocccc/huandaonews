@@ -1,5 +1,5 @@
 export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://huandaonews.com"
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://huandaonews.tw"
 ).replace(/\/$/, "");
 
 export const SITE_NAME_ZH = "環島新聞網";

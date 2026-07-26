@@ -37,6 +37,7 @@ if [ ! -f .env ]; then
   PREVIEW_SECRET=$(openssl rand -hex 16)
   cat > .env <<EOF
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/huandaonews"
+DIRECT_DATABASE_URL="postgresql://postgres:postgres@localhost:5432/huandaonews"
 NEXT_PUBLIC_SITE_URL="http://localhost:3000"
 AUTH_SECRET="${AUTH_SECRET}"
 PREVIEW_SECRET="${PREVIEW_SECRET}"

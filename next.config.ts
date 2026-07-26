@@ -11,6 +11,11 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "**.public.blob.vercel-storage.com",
       },
+      {
+        // R2 カスタムドメイン (公開画像)
+        protocol: "https",
+        hostname: process.env.NEXT_PUBLIC_IMG_HOST ?? "img.huandaonews.tw",
+      },
     ],
   },
   async headers() {

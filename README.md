@@ -69,6 +69,7 @@ pnpm dev
 /admin                             管理画面(noindex, zh-Hant/en/ja)
 ```
 
-## デプロイ (Vercel)
+## デプロイ (Vercel + Supabase + Cloudflare R2/DNS + Resend)
 
-必要な環境変数は `.env.example` を参照。`vercel.json` の cron (`/api/cron/publish`, 毎分) が予約公開を処理する。
+手順書: [docs/DEPLOY.md](./docs/DEPLOY.md)(Supabase pooler・R2カスタムドメイン・Cloudflare DNS設定の落とし穴込み)。
+必要な環境変数は `.env.example` を参照。cron は `vercel.json` で毎分(予約公開)/10分おき(RSS取得)/毎朝8:00 JST(AI記事化)が動く。

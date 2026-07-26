@@ -74,8 +74,11 @@ AUTH_SECRET="${AUTH_SECRET}"
 PREVIEW_SECRET="${PREVIEW_SECRET}"
 EOF
 fi
-grep -v '^DATABASE_URL=' .env > .env.new || true
-printf 'DATABASE_URL="%s"\n' "$URL" | cat - .env.new > .env
+grep -v -e '^DATABASE_URL=' -e '^DIRECT_DATABASE_URL=' .env > .env.new || true
+{
+  printf 'DATABASE_URL="%s"\n' "$URL"
+  printf 'DIRECT_DATABASE_URL="%s"\n' "$URL"
+} | cat - .env.new > .env
 rm -f .env.new
 echo "▶ DATABASE_URL = $URL"
 

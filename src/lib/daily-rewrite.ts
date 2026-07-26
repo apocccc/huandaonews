@@ -18,8 +18,8 @@ import type { JSONContent } from "@tiptap/core";
  * 実際のリリースは毎分の publish cron が publishAt 到達時に行う。
  */
 
-const PER_CATEGORY_LIMIT = 5;
-const PR_COPY_LIMIT = 5;
+const PER_CATEGORY_LIMIT = 2;
+const PR_COPY_LIMIT = 2;
 const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
 const WINDOW_START_MIN = 8 * 60 + 30; // 8:30 JST
 const WINDOW_LENGTH_MIN = 60; // 〜9:30 JST
@@ -110,6 +110,7 @@ export async function runDailyRewrite(now = new Date()): Promise<DailyRewriteSum
           lead: article.lead,
           sourceText: text,
           categoryName: category.nameZh,
+          sourceUrl: article.sourceUrl,
         });
         const body = buildRewrittenBody(output.paragraphs, images);
         const autoPublish = article.sourceFeed?.autoPublish ?? true;
@@ -181,6 +182,7 @@ export async function runDailyRewrite(now = new Date()): Promise<DailyRewriteSum
           lead: pr.lead,
           sourceText: text,
           categoryName: prCategory.nameZh,
+          sourceUrl: pr.sourceUrl,
           categories: categoryChoices,
         });
         const body = buildRewrittenBody(output.paragraphs, images);

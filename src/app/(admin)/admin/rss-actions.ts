@@ -152,6 +152,7 @@ export async function rewriteArticleAction(
       lead: article.lead,
       sourceText: text,
       categoryName: article.category.nameZh,
+      sourceUrl: article.sourceUrl,
     });
     const body = buildRewrittenBody(output.paragraphs, images);
 

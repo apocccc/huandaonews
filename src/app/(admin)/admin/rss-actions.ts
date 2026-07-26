@@ -93,6 +93,16 @@ export async function fetchFeedNowAction(formData: FormData) {
   revalidatePath("/admin/articles");
 }
 
+/** 毎朝のAI記事化ジョブを手動実行する(ローカル検証・臨時実行用) */
+export async function runDailyRewriteAction(): Promise<void> {
+  await requireFeedManager();
+  const { runDailyRewrite } = await import("@/lib/daily-rewrite");
+  const summary = await runDailyRewrite();
+  console.log("[daily-rewrite] manual run:", summary);
+  revalidatePath("/admin/rss");
+  revalidatePath("/admin/articles");
+}
+
 /**
  * RSS取り込み記事をOpenAIで独自記事化する(ワンクリック)。
  * 成功すると本文・タイトル・リードが書き換わり、isRewritten=true になる

@@ -19,6 +19,8 @@ type RewriteOutput = {
   title: string;
   lead: string;
   paragraphs: string[];
+  /** categories を渡した場合のみ: AIが選んだ最適カテゴリーの slug */
+  category?: string;
 };
 
 /** Tiptap doc から「テキスト+画像マーカー」の素材と画像ノード一覧を抽出 */
@@ -99,6 +101,8 @@ export async function rewriteWithOpenAI(input: {
   lead: string;
   sourceText: string;
   categoryName: string;
+  /** 指定すると、この一覧から最適なカテゴリーをAIに選択させる */
+  categories?: { slug: string; name: string }[];
 }): Promise<RewriteOutput> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
@@ -108,7 +112,7 @@ export async function rewriteWithOpenAI(input: {
   }
   const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
 
-  const system = [
+  const rules = [
     "你是台灣新聞網站「環島新聞網」的資深編輯。",
     "任務:將轉載的新聞稿改寫成本站原創報導。",
     "規則:",
@@ -118,7 +122,15 @@ export async function rewriteWithOpenAI(input: {
     "4. 原文中的 [IMAGE_n] 標記代表圖片位置,改寫後必須原封不動保留這些標記(單獨成段),順序不可改變、不可刪除。",
     "5. 小標題以「## 」開頭,單獨成段。",
     '6. 回傳 JSON:{"title": "新標題", "lead": "150字以內的前言", "paragraphs": ["段落1", "## 小標", "[IMAGE_1]", "段落2", ...]}',
-  ].join("\n");
+  ];
+  if (input.categories?.length) {
+    rules.push(
+      `7. 從下列分類中選出最適合本篇內容的一個,以 JSON 欄位 "category" 回傳其 slug:${input.categories
+        .map((c) => `${c.slug}(${c.name})`)
+        .join("、")}`
+    );
+  }
+  const system = rules.join("\n");
 
   const user = `分類:${input.categoryName}\n原標題:${input.title}\n原前言:${input.lead}\n\n原文:\n${input.sourceText}`;
 

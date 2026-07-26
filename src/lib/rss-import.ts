@@ -111,8 +111,16 @@ export async function importFeed(
     throw e;
   }
 
-  // 優先順: 呼び出し時の指定 > フィードごとの設定 > 上限
-  const limit = opts.maxItems ?? feed.fetchLimit ?? MAX_ITEMS_PER_FETCH;
+  const feedCategory = await prisma.category.findUnique({
+    where: { id: feed.categoryId },
+  });
+  const isPressReleaseFeed = feedCategory?.slug === "press-release";
+
+  // 優先順: 呼び出し時の指定 > フィードごとの設定 > 上限。
+  // プレスリリース系フィードは件数上限なく取り込む(安全上限のみ)
+  const limit = isPressReleaseFeed
+    ? (opts.maxItems ?? MAX_ITEMS_PER_FETCH)
+    : (opts.maxItems ?? feed.fetchLimit ?? MAX_ITEMS_PER_FETCH);
   const items = (parsed.items ?? []).slice(
     0,
     Math.min(Math.max(1, limit), MAX_ITEMS_PER_FETCH)
@@ -197,7 +205,14 @@ export async function importFeed(
       }
 
       const slug = `${dateStamp(publishedAt)}-rss-${hash8(guid)}`;
-      const status = feed.autoPublish ? ("published" as const) : ("review" as const);
+      // プレスリリース系フィード: そのまま引用として公開(要承認なら review)。
+      // 一般カテゴリーのフィード: そのままでは公開せず draft で保持し、
+      // 毎朝のAI書き換えジョブ(daily-rewrite)が独自記事化してから公開する。
+      const status = isPressReleaseFeed
+        ? feed.autoPublish
+          ? ("published" as const)
+          : ("review" as const)
+        : ("draft" as const);
 
       const article = await prisma.article.create({
         data: {
@@ -206,7 +221,7 @@ export async function importFeed(
           lead: firstParagraphText(item.contentSnippet ?? rawHtml, title),
           body,
           status,
-          publishedAt: feed.autoPublish ? publishedAt : null,
+          publishedAt: status === "published" ? publishedAt : null,
           categoryId: feed.categoryId,
           authorId: importUser.id,
           heroImageId: hero?.id ?? null,

@@ -100,6 +100,8 @@
       "autoPublishHint": "Checked = publish immediately without review / Unchecked = imported as \"In review\" and published after approval",
       "fetchLimit": "Items per fetch",
       "enabled": "Enabled",
+      "pipelineHint": "Imports into regular categories are held as drafts; every day at 8:00 JST the AI rewrites up to 5 per category as original stories, released at a random time between 8:30 and 9:30. Press releases are reprinted without limit, plus up to 5 are rewritten into the most fitting category.",
+      "runDailyJob": "Run AI rewrite job now",
       "autoFetch": "Auto-fetch",
       "autoFetchHint": "Auto-fetch imports on the selected schedule. When off, you can still import manually with \"Fetch now\"",
       "interval": "Fetch frequency",

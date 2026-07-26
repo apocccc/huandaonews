@@ -6,6 +6,7 @@ import {
   createFeedAction,
   deleteFeedAction,
   fetchFeedNowAction,
+  runDailyRewriteAction,
   updateFeedAction,
 } from "../../rss-actions";
 
@@ -57,6 +58,18 @@ export default async function RssFeedsPage() {
     <div className="max-w-4xl">
       <h1 className="text-2xl font-black">{t("title")}</h1>
       <p className="mt-1 text-sm text-gray">{t("description")}</p>
+
+      <div className="mt-3 flex flex-wrap items-center gap-3 rounded-lg border border-line bg-bg p-3">
+        <p className="min-w-0 flex-1 text-xs text-gray">{t("pipelineHint")}</p>
+        <form action={runDailyRewriteAction}>
+          <button
+            type="submit"
+            className="rounded bg-ink px-3 py-1.5 text-xs font-bold text-white hover:bg-ink/80"
+          >
+            ✦ {t("runDailyJob")}
+          </button>
+        </form>
+      </div>
 
       <div className="mt-6 flex flex-col gap-4">
         {feeds.length === 0 ? (

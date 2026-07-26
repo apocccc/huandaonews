@@ -39,6 +39,12 @@
       "searchPlaceholder": "タイトルを検索…",
       "filterStatus": "ステータス",
       "filterCategory": "カテゴリー",
+      "filterKind": "種別",
+      "kinds": {
+        "rewritten": "独自化済み",
+        "rssRaw": "RSS未加工",
+        "manual": "自社記事"
+      },
       "all": "すべて",
       "columns": {
         "title": "タイトル",
@@ -58,7 +64,7 @@
       "archive": "非公開化",
       "apply": "適用",
       "selectAll": "すべて選択",
-      "hint": "記事にチェックを入れて適用。下書き・レビュー待ち・予約公開の記事をまとめて即時公開できます"
+      "hint": "記事にチェックを入れて適用。下書き・レビュー待ち・予約公開の記事をまとめて即時公開できます(RSS未加工の記事は誤公開防止のため公開されません。新聞稿は除く)"
     },
     "status": {
       "draft": "下書き",

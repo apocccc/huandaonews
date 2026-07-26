@@ -24,14 +24,22 @@ const STATUS_STYLES: Record<ArticleStatus, string> = {
   archived: "bg-gray-200 text-gray-600",
 };
 
+const KINDS = ["rewritten", "rssRaw", "manual"] as const;
+
 export default async function ArticlesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; category?: string; q?: string; page?: string }>;
+  searchParams: Promise<{
+    status?: string;
+    category?: string;
+    kind?: string;
+    q?: string;
+    page?: string;
+  }>;
 }) {
   const session = await auth();
   const t = await getTranslations("admin");
-  const { status, category, q, page: pageParam } = await searchParams;
+  const { status, category, kind, q, page: pageParam } = await searchParams;
   const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
   const perPage = 25;
 
@@ -40,6 +48,12 @@ export default async function ArticlesPage({
       ? { status: status as ArticleStatus }
       : {}),
     ...(category ? { category: { is: { slug: category } } } : {}),
+    // 種別: 独自化済み / RSS取り込みのみ(未独自化) / 通常記事
+    ...(kind === "rewritten" ? { isRewritten: true } : {}),
+    ...(kind === "rssRaw"
+      ? { sourceFeedId: { not: null }, isRewritten: false }
+      : {}),
+    ...(kind === "manual" ? { sourceFeedId: null } : {}),
     ...(q ? { title: { contains: q, mode: "insensitive" } } : {}),
     // contributor/author は自分の記事のみ
     ...(session?.user.role === "admin" || session?.user.role === "editor"
@@ -113,6 +127,20 @@ export default async function ArticlesPage({
           {categories.map((c) => (
             <option key={c.id} value={c.slug}>
               {c.nameZh}
+            </option>
+          ))}
+        </select>
+        <select
+          name="kind"
+          defaultValue={kind ?? ""}
+          className="rounded border border-line bg-bg px-2 py-1.5"
+        >
+          <option value="">
+            {t("articles.filterKind")}: {t("articles.all")}
+          </option>
+          {KINDS.map((k) => (
+            <option key={k} value={k}>
+              {t(`articles.kinds.${k}`)}
             </option>
           ))}
         </select>
@@ -228,7 +256,7 @@ export default async function ArticlesPage({
         <div className="mt-4 flex justify-center gap-3 text-sm">
           {page > 1 ? (
             <Link
-              href={`?${new URLSearchParams({ ...(status ? { status } : {}), ...(category ? { category } : {}), ...(q ? { q } : {}), page: String(page - 1) })}`}
+              href={`?${new URLSearchParams({ ...(status ? { status } : {}), ...(category ? { category } : {}), ...(kind ? { kind } : {}), ...(q ? { q } : {}), page: String(page - 1) })}`}
               className="rounded border border-line px-3 py-1.5 hover:border-primary"
             >
               ←
@@ -239,7 +267,7 @@ export default async function ArticlesPage({
           </span>
           {page < Math.ceil(total / perPage) ? (
             <Link
-              href={`?${new URLSearchParams({ ...(status ? { status } : {}), ...(category ? { category } : {}), ...(q ? { q } : {}), page: String(page + 1) })}`}
+              href={`?${new URLSearchParams({ ...(status ? { status } : {}), ...(category ? { category } : {}), ...(kind ? { kind } : {}), ...(q ? { q } : {}), page: String(page + 1) })}`}
               className="rounded border border-line px-3 py-1.5 hover:border-primary"
             >
               →

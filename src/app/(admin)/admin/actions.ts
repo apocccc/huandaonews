@@ -297,6 +297,15 @@ export async function bulkStatusAction(formData: FormData) {
   for (const article of articles) {
     if (action === "publish") {
       if (article.status === "published") continue;
+      // 誤公開ガード: RSS取り込みのみで未独自化の記事は一括公開の対象外
+      // (新聞稿カテゴリーは転載仕様のため除く。個別公開はエディターから可能)
+      if (
+        article.sourceFeedId &&
+        !article.isRewritten &&
+        article.category.slug !== "press-release"
+      ) {
+        continue;
+      }
       await prisma.article.update({
         where: { id: article.id },
         data: {

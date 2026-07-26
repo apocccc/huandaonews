@@ -39,6 +39,12 @@
       "searchPlaceholder": "搜尋標題…",
       "filterStatus": "狀態",
       "filterCategory": "分類",
+      "filterKind": "種類",
+      "kinds": {
+        "rewritten": "已原創化",
+        "rssRaw": "RSS 未改寫",
+        "manual": "自製文章"
+      },
       "all": "全部",
       "columns": {
         "title": "標題",
@@ -58,7 +64,7 @@
       "archive": "下架",
       "apply": "套用",
       "selectAll": "全選",
-      "hint": "勾選文章後套用。草稿・待審核・已排程的文章可一鍵立即發布"
+      "hint": "勾選文章後套用。草稿・待審核・已排程的文章可一鍵立即發布(RSS 未改寫的文章不會被發布,新聞稿除外)"
     },
     "status": {
       "draft": "草稿",

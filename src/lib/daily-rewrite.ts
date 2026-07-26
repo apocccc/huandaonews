@@ -152,6 +152,9 @@ export async function runDailyRewrite(now = new Date()): Promise<DailyRewriteSum
         sourceGuid: { not: null },
         // サムネイルが確保できていない新聞稿は記事化の対象にしない
         heroImageId: { not: null },
+        // 手動ボタン等で既に本体が独自化済みの場合は複製を作らない
+        // (1つのRSS記事に対して独自化記事は1つだけ)
+        isRewritten: false,
       },
       orderBy: { publishedAt: "desc" },
       take: 20,

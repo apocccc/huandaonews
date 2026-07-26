@@ -39,6 +39,12 @@
       "searchPlaceholder": "Search titles…",
       "filterStatus": "Status",
       "filterCategory": "Category",
+      "filterKind": "Kind",
+      "kinds": {
+        "rewritten": "Rewritten",
+        "rssRaw": "RSS (not rewritten)",
+        "manual": "Original"
+      },
       "all": "All",
       "columns": {
         "title": "Title",
@@ -58,7 +64,7 @@
       "archive": "Unpublish",
       "apply": "Apply",
       "selectAll": "Select all",
-      "hint": "Check articles, then apply. Drafts, in-review and scheduled articles can be published instantly"
+      "hint": "Check articles, then apply. Drafts, in-review and scheduled articles can be published instantly (raw RSS imports are never published by bulk actions, except press releases)"
     },
     "status": {
       "draft": "Draft",

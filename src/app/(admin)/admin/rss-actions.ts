@@ -125,6 +125,23 @@ export async function rewriteArticleAction(
   if (!article.sourceFeedId && !article.sourceName) {
     return { ok: false, error: "not an RSS-imported article" };
   }
+  // 1つのRSS記事に対して独自化記事は1つだけ:
+  // 既に本体が独自化済み、または別記事として独自化コピーが存在する場合は対象外
+  if (article.isRewritten) {
+    return { ok: false, error: "already rewritten" };
+  }
+  if (article.sourceGuid) {
+    const existingCopy = await prisma.article.findUnique({
+      where: { sourceGuid: `${article.sourceGuid}#rewrite` },
+      select: { id: true },
+    });
+    if (existingCopy) {
+      return {
+        ok: false,
+        error: "この記事の独自化記事は既に作成済みです (already rewritten as a separate article)",
+      };
+    }
+  }
 
   try {
     const { text, images } = extractSource(

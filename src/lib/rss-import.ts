@@ -57,7 +57,7 @@ function guidOf(item: FeedItem): string | null {
   return raw ? raw.trim() : null;
 }
 
-function hash8(s: string): string {
+export function hash8(s: string): string {
   return createHash("sha1").update(s).digest("hex").slice(0, 8);
 }
 
@@ -266,7 +266,8 @@ export async function importFeed(
         };
       }
 
-      const slug = `${dateStamp(publishedAt)}-rss-${hash8(guid)}`;
+      // スラッグに取り込み元を推測させる情報(rss等)を含めない
+      const slug = `${dateStamp(publishedAt)}-${hash8(guid)}`;
       // プレスリリース系フィード: そのまま引用として公開(要承認なら review)。
       // 一般カテゴリーのフィード: そのままでは公開せず draft で保持し、
       // 毎朝のAI書き換えジョブ(daily-rewrite)が独自記事化してから公開する。

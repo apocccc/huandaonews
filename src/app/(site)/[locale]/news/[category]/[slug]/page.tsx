@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { notFound, redirect as nextRedirect } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import {
@@ -84,9 +84,9 @@ export default async function ArticlePage({
 
   const article = await getArticleBySlug(category, slug);
   if (!article) {
-    // スラッグ変更・カテゴリー移動時の301リダイレクト
+    // スラッグ変更・カテゴリー移動時の恒久リダイレクト
     const r = await findRedirect(articlePath(category, slug));
-    if (r) nextRedirect(r.toPath);
+    if (r) permanentRedirect(r.toPath);
     notFound();
   }
 

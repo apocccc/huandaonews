@@ -90,6 +90,8 @@ export async function runDailyRewrite(now = new Date()): Promise<DailyRewriteSum
         status: "draft",
         sourceFeedId: { not: null },
         isRewritten: false,
+        // サムネイルが確保できていない記事は公開対象にしない
+        heroImageId: { not: null },
       },
       orderBy: { createdAt: "desc" },
       take: PER_CATEGORY_LIMIT,
@@ -148,6 +150,8 @@ export async function runDailyRewrite(now = new Date()): Promise<DailyRewriteSum
         sourceFeedId: { not: null },
         status: "published",
         sourceGuid: { not: null },
+        // サムネイルが確保できていない新聞稿は記事化の対象にしない
+        heroImageId: { not: null },
       },
       orderBy: { publishedAt: "desc" },
       take: 20,

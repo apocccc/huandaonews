@@ -5,24 +5,10 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig: NextConfig = {
   images: {
-    formats: ["image/webp"],
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "**.public.blob.vercel-storage.com",
-      },
-      {
-        // R2 カスタムドメイン (公開画像)
-        protocol: "https",
-        hostname: process.env.NEXT_PUBLIC_IMG_HOST ?? "img.huandaonews.tw",
-      },
-      {
-        // RSS取り込み記事のサムネイル(元記事画像のホットリンク)は
-        // 任意のドメインになるため、https全体を許可して最適化プロキシ経由で配信
-        protocol: "https",
-        hostname: "**",
-      },
-    ],
+    // Vercelの画像最適化(変換課金)を使わず、R2 + Cloudflare CDN から直接配信する。
+    // 画像は取り込み時に WebP・最大1600px へ変換済みのため最適化は不要。
+    // これにより /_next/image が任意URLのプロキシになる抜け道も塞がる。
+    unoptimized: true,
   },
   async headers() {
     return [

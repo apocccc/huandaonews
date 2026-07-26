@@ -4,7 +4,7 @@ import { generateJSON } from "@tiptap/html";
 import type { JSONContent } from "@tiptap/core";
 import { prisma } from "@/lib/prisma";
 import { bodyExtensions, extractText } from "@/lib/tiptap";
-import { createRemoteMedia, storeRemoteImage } from "@/lib/media-store";
+import { storeRemoteImage } from "@/lib/media-store";
 import { dateStamp } from "@/lib/slug";
 import { revalidateArticle } from "@/lib/revalidate";
 import type { RssFeed } from "@prisma/client";
@@ -118,8 +118,9 @@ export async function fetchOgImage(pageUrl: string): Promise<string | null> {
 }
 
 /**
- * サムネイルを確保する: ダウンロード保存を試み、失敗したら
- * 元画像URLをそのまま参照する(ホットリンク)
+ * サムネイルを確保する: フィード内画像→元記事のog:imageの順に
+ * ダウンロード検証して保存する。検証に成功した画像が無ければ null
+ * (=表示保証のないサムネイルは使わない)
  */
 async function resolveHeroMedia(
   candidate: string | null,
@@ -127,14 +128,18 @@ async function resolveHeroMedia(
   title: string,
   uploadedBy: string
 ) {
-  let url = candidate;
-  if (!url && item.link) {
-    url = await fetchOgImage(item.link);
+  if (candidate) {
+    const stored = await storeRemoteImage(candidate, title, uploadedBy);
+    if (stored) return stored;
   }
-  if (!url) return null;
-  const stored = await storeRemoteImage(url, title, uploadedBy);
-  if (stored) return stored;
-  return createRemoteMedia(url, title, uploadedBy);
+  if (item.link) {
+    const ogImage = await fetchOgImage(item.link);
+    if (ogImage && ogImage !== candidate) {
+      const stored = await storeRemoteImage(ogImage, title, uploadedBy);
+      if (stored) return stored;
+    }
+  }
+  return null;
 }
 
 /** 1フィードを取り込む。重複(guid/URL/タイトル)は先着優先でスキップ */
@@ -208,8 +213,8 @@ export async function importFeed(
           : new Date();
 
       // 画像を自社ストレージへ保存(アイキャッチ+本文内画像)。
-      // フィードに画像が無い場合は元記事の og:image を取得し、
-      // 保存に失敗した場合は元画像URLをそのまま参照する
+      // フィードに画像が無い場合は元記事の og:image を取得する。
+      // サムネイルを確保できない記事は取り込み対象外とする
       const heroCandidate = resolveHeroCandidate(item, rawHtml);
       const hero = await resolveHeroMedia(
         heroCandidate,
@@ -217,6 +222,10 @@ export async function importFeed(
         title,
         importUser.id
       );
+      if (!hero) {
+        result.skipped++;
+        continue;
+      }
 
       let html = rawHtml;
       const inlineSrcs = extractImgSrcs(rawHtml).slice(0, MAX_INLINE_IMAGES);
@@ -332,9 +341,12 @@ export async function backfillMissingThumbnails(limit = 10): Promise<number> {
     try {
       const imageUrl = await fetchOgImage(article.sourceUrl!);
       if (!imageUrl) continue;
-      const stored =
-        (await storeRemoteImage(imageUrl, article.title, importUser.id)) ??
-        (await createRemoteMedia(imageUrl, article.title, importUser.id));
+      const stored = await storeRemoteImage(
+        imageUrl,
+        article.title,
+        importUser.id
+      );
+      if (!stored) continue;
       await prisma.article.update({
         where: { id: article.id },
         data: { heroImageId: stored.id },

@@ -16,6 +16,12 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: process.env.NEXT_PUBLIC_IMG_HOST ?? "img.huandaonews.tw",
       },
+      {
+        // RSS取り込み記事のサムネイル(元記事画像のホットリンク)は
+        // 任意のドメインになるため、https全体を許可して最適化プロキシ経由で配信
+        protocol: "https",
+        hostname: "**",
+      },
     ],
   },
   async headers() {

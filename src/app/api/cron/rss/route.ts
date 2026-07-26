@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { importAllFeeds } from "@/lib/rss-import";
+import { backfillMissingThumbnails, importAllFeeds } from "@/lib/rss-import";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -16,5 +16,7 @@ export async function GET(req: Request) {
   }
 
   const results = await importAllFeeds();
-  return NextResponse.json({ results });
+  // 過去に取り込んだサムネイル欠落記事を毎回少しずつ補完する
+  const backfilled = await backfillMissingThumbnails(10);
+  return NextResponse.json({ results, backfilled });
 }

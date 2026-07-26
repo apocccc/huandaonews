@@ -4,7 +4,7 @@ import { generateJSON } from "@tiptap/html";
 import type { JSONContent } from "@tiptap/core";
 import { prisma } from "@/lib/prisma";
 import { bodyExtensions, extractText } from "@/lib/tiptap";
-import { storeRemoteImage } from "@/lib/media-store";
+import { createRemoteMedia, storeRemoteImage } from "@/lib/media-store";
 import { dateStamp } from "@/lib/slug";
 import { revalidateArticle } from "@/lib/revalidate";
 import type { RssFeed } from "@prisma/client";
@@ -89,6 +89,54 @@ function resolveHeroCandidate(item: FeedItem, html: string): string | null {
   return extractImgSrcs(html)[0] ?? null;
 }
 
+/**
+ * フィード内に画像が無い場合のフォールバック:
+ * 元記事ページを取得して og:image / twitter:image を抽出する
+ */
+export async function fetchOgImage(pageUrl: string): Promise<string | null> {
+  try {
+    const res = await fetch(pageUrl, {
+      signal: AbortSignal.timeout(12_000),
+      headers: { "User-Agent": "HuandaoNewsBot/1.0 (+https://huandaonews.tw)" },
+    });
+    if (!res.ok) return null;
+    const html = (await res.text()).slice(0, 300_000);
+    const patterns = [
+      /<meta[^>]+property=["']og:image(?::url)?["'][^>]+content=["']([^"']+)["']/i,
+      /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image(?::url)?["']/i,
+      /<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/i,
+      /<meta[^>]+content=["']([^"']+)["'][^>]+name=["']twitter:image["']/i,
+    ];
+    for (const re of patterns) {
+      const m = html.match(re);
+      if (m?.[1]?.startsWith("http")) return m[1].replace(/&amp;/g, "&");
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * サムネイルを確保する: ダウンロード保存を試み、失敗したら
+ * 元画像URLをそのまま参照する(ホットリンク)
+ */
+async function resolveHeroMedia(
+  candidate: string | null,
+  item: FeedItem,
+  title: string,
+  uploadedBy: string
+) {
+  let url = candidate;
+  if (!url && item.link) {
+    url = await fetchOgImage(item.link);
+  }
+  if (!url) return null;
+  const stored = await storeRemoteImage(url, title, uploadedBy);
+  if (stored) return stored;
+  return createRemoteMedia(url, title, uploadedBy);
+}
+
 /** 1フィードを取り込む。重複(guid/URL/タイトル)は先着優先でスキップ */
 export async function importFeed(
   feed: RssFeed,
@@ -159,11 +207,16 @@ export async function importFeed(
           ? new Date(item.pubDate)
           : new Date();
 
-      // 画像を自社ストレージへ保存(アイキャッチ+本文内画像)
+      // 画像を自社ストレージへ保存(アイキャッチ+本文内画像)。
+      // フィードに画像が無い場合は元記事の og:image を取得し、
+      // 保存に失敗した場合は元画像URLをそのまま参照する
       const heroCandidate = resolveHeroCandidate(item, rawHtml);
-      const hero = heroCandidate
-        ? await storeRemoteImage(heroCandidate, title, importUser.id)
-        : null;
+      const hero = await resolveHeroMedia(
+        heroCandidate,
+        item,
+        title,
+        importUser.id
+      );
 
       let html = rawHtml;
       const inlineSrcs = extractImgSrcs(rawHtml).slice(0, MAX_INLINE_IMAGES);
@@ -254,6 +307,47 @@ export async function importFeed(
   });
 
   return result;
+}
+
+/**
+ * サムネイルが無いRSS取り込み記事に元記事のog:imageを補完する
+ * (RSS cronが毎回、直近の欠落分から順に処理する)
+ */
+export async function backfillMissingThumbnails(limit = 10): Promise<number> {
+  const articles = await prisma.article.findMany({
+    where: {
+      sourceFeedId: { not: null },
+      heroImageId: null,
+      sourceUrl: { not: null },
+    },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    include: { category: true },
+  });
+  if (articles.length === 0) return 0;
+
+  const importUser = await getImportUser();
+  let filled = 0;
+  for (const article of articles) {
+    try {
+      const imageUrl = await fetchOgImage(article.sourceUrl!);
+      if (!imageUrl) continue;
+      const stored =
+        (await storeRemoteImage(imageUrl, article.title, importUser.id)) ??
+        (await createRemoteMedia(imageUrl, article.title, importUser.id));
+      await prisma.article.update({
+        where: { id: article.id },
+        data: { heroImageId: stored.id },
+      });
+      if (article.status === "published") {
+        revalidateArticle(article.category.slug, article.slug);
+      }
+      filled++;
+    } catch (e) {
+      console.error(`[rss-import] thumbnail backfill failed (${article.slug}):`, e);
+    }
+  }
+  return filled;
 }
 
 /**

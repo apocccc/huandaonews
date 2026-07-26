@@ -264,6 +264,72 @@ export async function changeStatusAction(
   return { ok: true, status: updated.status };
 }
 
+/**
+ * 記事一覧の一括操作。選択した記事のステータスをまとめて変更する。
+ * publish: 下書き・レビュー待ち・予約公開を即時公開する
+ */
+export async function bulkStatusAction(formData: FormData) {
+  const session = await auth();
+  if (!session?.user) redirect("/admin/login");
+  const user = session.user;
+
+  const ids = formData.getAll("ids").map(String).filter(Boolean).slice(0, 100);
+  const action = z
+    .enum(["publish", "draft", "archive"])
+    .parse(formData.get("bulkAction"));
+  if (ids.length === 0) return;
+
+  if ((action === "publish" || action === "archive") && !canPublish(user)) {
+    throw new Error("Forbidden");
+  }
+
+  const articles = await prisma.article.findMany({
+    where: {
+      id: { in: ids },
+      // author/contributor は自分の記事のみ対象
+      ...(user.role === "admin" || user.role === "editor"
+        ? {}
+        : { authorId: user.id }),
+    },
+    include: { category: true },
+  });
+
+  for (const article of articles) {
+    if (action === "publish") {
+      if (article.status === "published") continue;
+      await prisma.article.update({
+        where: { id: article.id },
+        data: {
+          status: "published",
+          publishedAt: article.publishedAt ?? new Date(),
+          publishAt: null,
+        },
+      });
+      revalidateArticle(article.category.slug, article.slug);
+    } else if (action === "draft") {
+      if (article.status === "draft") continue;
+      await prisma.article.update({
+        where: { id: article.id },
+        data: { status: "draft", publishAt: null },
+      });
+      if (article.status === "published") {
+        revalidateArticle(article.category.slug, article.slug);
+      }
+    } else {
+      if (article.status === "archived") continue;
+      await prisma.article.update({
+        where: { id: article.id },
+        data: { status: "archived", publishAt: null },
+      });
+      if (article.status === "published") {
+        revalidateArticle(article.category.slug, article.slug);
+      }
+    }
+  }
+
+  revalidatePath("/admin/articles");
+}
+
 export async function deleteArticleAction(articleId: string) {
   const { article } = await requireArticleAccess(articleId);
   await prisma.article.delete({ where: { id: articleId } });

@@ -2,7 +2,8 @@ import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
-import { createArticleAction } from "../../actions";
+import { bulkStatusAction, createArticleAction } from "../../actions";
+import { SelectAllCheckbox } from "@/components/admin/SelectAllCheckbox";
 import type { ArticleStatus, Prisma } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -130,11 +131,36 @@ export default async function ArticlesPage({
         </button>
       </form>
 
-      <div className="mt-4 overflow-x-auto rounded-lg border border-line bg-bg">
-        <table className="w-full min-w-[640px] text-sm">
-          <thead>
-            <tr className="border-b border-line bg-bg-sub text-left text-xs text-gray">
-              <th className="px-4 py-2.5 font-medium">{t("articles.columns.title")}</th>
+      <form action={bulkStatusAction}>
+        {/* 一括操作バー */}
+        <div className="mt-4 flex flex-wrap items-center gap-2 rounded-lg border border-line bg-bg px-3 py-2 text-sm">
+          <span className="text-xs font-bold text-gray">{t("bulk.label")}</span>
+          <select
+            name="bulkAction"
+            defaultValue="publish"
+            className="rounded border border-line bg-bg px-2 py-1.5"
+          >
+            <option value="publish">{t("bulk.publish")}</option>
+            <option value="draft">{t("bulk.toDraft")}</option>
+            <option value="archive">{t("bulk.archive")}</option>
+          </select>
+          <button
+            type="submit"
+            className="rounded bg-primary px-3 py-1.5 text-xs font-bold text-white hover:bg-primary-dark"
+          >
+            {t("bulk.apply")}
+          </button>
+          <span className="text-xs text-gray">{t("bulk.hint")}</span>
+        </div>
+
+        <div className="mt-3 overflow-x-auto rounded-lg border border-line bg-bg">
+          <table className="w-full min-w-[640px] text-sm">
+            <thead>
+              <tr className="border-b border-line bg-bg-sub text-left text-xs text-gray">
+                <th className="w-8 px-3 py-2.5">
+                  <SelectAllCheckbox label={t("bulk.selectAll")} />
+                </th>
+                <th className="px-4 py-2.5 font-medium">{t("articles.columns.title")}</th>
               <th className="px-4 py-2.5 font-medium">{t("articles.columns.status")}</th>
               <th className="px-4 py-2.5 font-medium">{t("articles.columns.category")}</th>
               <th className="px-4 py-2.5 font-medium">{t("articles.columns.author")}</th>
@@ -144,13 +170,16 @@ export default async function ArticlesPage({
           <tbody className="divide-y divide-line">
             {articles.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-gray">
+                <td colSpan={6} className="px-4 py-10 text-center text-gray">
                   {t("articles.empty")}
                 </td>
               </tr>
             ) : (
               articles.map((a) => (
                 <tr key={a.id} className="hover:bg-bg-sub/60">
+                  <td className="px-3 py-2.5">
+                    <input type="checkbox" name="ids" value={a.id} aria-label={a.title} />
+                  </td>
                   <td className="px-4 py-2.5">
                     <Link
                       href={`/admin/articles/${a.id}`}
@@ -192,7 +221,8 @@ export default async function ArticlesPage({
             )}
           </tbody>
         </table>
-      </div>
+        </div>
+      </form>
 
       {total > perPage ? (
         <div className="mt-4 flex justify-center gap-3 text-sm">

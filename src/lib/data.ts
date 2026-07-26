@@ -129,15 +129,12 @@ export function getArticlesByCategory(
   );
 }
 
-/** 閲覧数ランキング(サイドバー用) */
+/** 閲覧数ランキング(サイドバー用。新聞稿含む) */
 export function getPopularArticles(limit = 10) {
   return safe(
     () =>
       prisma.article.findMany({
-        where: {
-          ...publishedWhere,
-          category: { isNot: { slug: "press-release" } },
-        },
+        where: publishedWhere,
         orderBy: { viewCount: "desc" },
         take: limit,
         include: articleListInclude,
@@ -146,14 +143,14 @@ export function getPopularArticles(limit = 10) {
   );
 }
 
-/** カテゴリー別ダイジェスト(トップのセクション群用) */
+/** カテゴリー別ダイジェスト(トップのセクション群用。新聞稿含む) */
 export function getCategoryDigests(perCategory = 4) {
   return safe(
     async () => {
       const categories = await prisma.category.findMany({
         where: {
           isVisible: true,
-          slug: { notIn: ["latest", "press-release"] },
+          slug: { not: "latest" },
         },
         orderBy: { order: "asc" },
       });

@@ -51,6 +51,15 @@
       "empty": "No matching articles",
       "untitled": "(untitled)"
     },
+    "bulk": {
+      "label": "Bulk actions",
+      "publish": "Publish now",
+      "toDraft": "Back to draft",
+      "archive": "Unpublish",
+      "apply": "Apply",
+      "selectAll": "Select all",
+      "hint": "Check articles, then apply. Drafts, in-review and scheduled articles can be published instantly"
+    },
     "status": {
       "draft": "Draft",
       "review": "In review",

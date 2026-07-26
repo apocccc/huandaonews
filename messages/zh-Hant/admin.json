@@ -51,6 +51,15 @@
       "empty": "沒有符合條件的文章",
       "untitled": "(未命名)"
     },
+    "bulk": {
+      "label": "批次操作",
+      "publish": "立即發布",
+      "toDraft": "退回草稿",
+      "archive": "下架",
+      "apply": "套用",
+      "selectAll": "全選",
+      "hint": "勾選文章後套用。草稿・待審核・已排程的文章可一鍵立即發布"
+    },
     "status": {
       "draft": "草稿",
       "review": "待審核",

@@ -27,10 +27,11 @@ export default async function HomePage({
   setRequestLocale(locale);
   const t = await getTranslations();
 
+  // トップの各枠にはプレスリリース(新聞稿)も含めて表示する
   const [pinned, latest, breaking, pressReleases, popular, digests] =
     await Promise.all([
       getPinnedArticles(5),
-      getLatestArticles(30),
+      getLatestArticles(30, false),
       getBreakingArticles(3),
       getPressReleases(6),
       getPopularArticles(10),

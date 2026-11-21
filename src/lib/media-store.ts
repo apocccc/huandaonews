@@ -1,6 +1,8 @@
 import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 import sharp from "sharp";
+import { createHash } from "crypto";
+import { isLogoLike } from "@/lib/images";
 import { prisma } from "@/lib/prisma";
 
 const MAX_WIDTH = 1600;
@@ -24,6 +26,7 @@ export async function storeImage(
     .webp({ quality: 82 })
     .toBuffer();
   const meta = await sharp(webp).metadata();
+  const sha1 = createHash("sha1").update(input).digest("hex");
 
   const filename = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}.webp`;
 
@@ -79,6 +82,7 @@ export async function storeImage(
       height: meta.height ?? 0,
       alt,
       mimeType: "image/webp",
+      sha1,
       uploadedBy,
     },
   });
@@ -109,22 +113,48 @@ export async function createRemoteMedia(
 }
 
 /** リモート画像をダウンロードして保存する。失敗時は null(取り込みを止めない) */
+/** 同一画像がこの件数以上の記事でメイン画像になっていたら使い回し(ロゴ等)とみなす */
+const REUSED_HERO_THRESHOLD = 2;
+
+/**
+ * リモート画像をダウンロードして保存する。失敗時は null(取り込みを止めない)。
+ * asHero: 記事のメイン画像として使う場合は、ロゴ/プレースホルダらしい画像と、
+ * 既に複数記事で使い回されている画像を拒否する(SEO修正指示書 P1-2)。
+ */
 export async function storeRemoteImage(
   imageUrl: string,
   alt: string,
   uploadedBy: string,
-  subdir = "rss"
+  subdir = "rss",
+  opts: { asHero?: boolean } = {}
 ): Promise<StoredMedia | null> {
   try {
     const res = await fetch(imageUrl, {
       signal: AbortSignal.timeout(15_000),
-      headers: { "User-Agent": "HuandaoNewsBot/1.0 (+https://huandaonews.com)" },
+      headers: { "User-Agent": "HuandaoNewsBot/1.0 (+https://huandaonews.tw)" },
     });
     if (!res.ok) return null;
     const contentType = res.headers.get("content-type") ?? "";
     if (!contentType.startsWith("image/")) return null;
     const buf = Buffer.from(await res.arrayBuffer());
     if (buf.byteLength === 0 || buf.byteLength > MAX_DOWNLOAD_BYTES) return null;
+
+    if (opts.asHero) {
+      const meta = await sharp(buf).metadata();
+      const dim = { width: meta.width ?? 0, height: meta.height ?? 0 };
+      if (isLogoLike(dim)) {
+        console.warn(`[media-store] rejected logo-like hero ${dim.width}x${dim.height}: ${imageUrl}`);
+        return null;
+      }
+      const sha1 = createHash("sha1").update(buf).digest("hex");
+      const reused = await prisma.article.count({
+        where: { heroImage: { is: { sha1 } } },
+      });
+      if (reused >= REUSED_HERO_THRESHOLD) {
+        console.warn(`[media-store] rejected reused hero (already on ${reused} articles): ${imageUrl}`);
+        return null;
+      }
+    }
     return await storeImage(buf, alt, uploadedBy, subdir);
   } catch (e) {
     console.error(`[media-store] failed to download ${imageUrl}:`, e);

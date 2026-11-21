@@ -6,6 +6,8 @@ import { getAuthorWithArticles } from "@/lib/data";
 import { ArticleCard } from "@/components/site/ArticleCard";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Pagination } from "@/components/site/Pagination";
+import { JsonLd } from "@/components/JsonLd";
+import { pageMetadata, profilePageJsonLd } from "@/lib/seo";
 
 export const revalidate = 300;
 
@@ -15,13 +17,25 @@ type Params = { locale: string; authorSlug: string };
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<Params>;
+  searchParams: Promise<{ page?: string }>;
 }): Promise<Metadata> {
-  const { authorSlug } = await params;
+  const { locale, authorSlug } = await params;
   const { author } = await getAuthorWithArticles(authorSlug, 1, 1);
   if (!author) return {};
-  return { title: author.name, description: author.bio ?? undefined };
+  const page = Math.max(1, parseInt((await searchParams).page ?? "1", 10) || 1);
+  const t = await getTranslations({ locale });
+  const pageLabel = page > 1 ? ` ${t("labels.page", { page })}` : "";
+  const base = `/author/${authorSlug}`;
+  const bio = author.bio?.trim();
+  return pageMetadata({
+    title: `${author.name}${pageLabel}`,
+    description: `${t("meta.author", { name: author.name })}${bio ? bio : ""}${pageLabel}`,
+    path: page > 1 ? `${base}?page=${page}` : base,
+    type: "profile",
+  });
 }
 
 export default async function AuthorPage({
@@ -47,6 +61,7 @@ export default async function AuthorPage({
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6">
+      <JsonLd data={profilePageJsonLd(author)} />
       <Breadcrumbs
         crumbs={[
           { name: t("nav.home"), path: "/" },

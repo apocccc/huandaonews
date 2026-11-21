@@ -1,6 +1,7 @@
 import { getNewsSitemapArticles } from "@/lib/data";
 import { absoluteUrl, articlePath, SITE_NAME_ZH } from "@/lib/site";
 import { xmlEscape } from "@/lib/seo";
+import { SITEMAP_HEADERS } from "@/lib/sitemap";
 
 export const revalidate = 300;
 
@@ -29,10 +30,5 @@ ${articles
 </urlset>
 `;
 
-  return new Response(xml, {
-    headers: {
-      "Content-Type": "application/xml; charset=utf-8",
-      "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
-    },
-  });
+  return new Response(xml, { headers: SITEMAP_HEADERS });
 }

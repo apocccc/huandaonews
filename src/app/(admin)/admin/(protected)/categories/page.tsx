@@ -56,6 +56,15 @@ export default async function CategoriesPage() {
               <input type="checkbox" name="isVisible" defaultChecked={c.isVisible} />
               {t("visible")}
             </label>
+            <input
+              name="description"
+              defaultValue={c.description ?? ""}
+              maxLength={200}
+              aria-label={t("description")}
+              placeholder={t("descriptionPlaceholder")}
+              title={t("description")}
+              className="order-last w-full rounded border border-line px-2 py-1.5"
+            />
             <button
               type="submit"
               className="ml-auto rounded bg-primary px-3 py-1.5 text-xs font-bold text-white hover:bg-primary-dark"
@@ -100,6 +109,13 @@ export default async function CategoriesPage() {
           <input type="checkbox" name="isVisible" defaultChecked />
           {t("visible")}
         </label>
+        <input
+          name="description"
+          maxLength={200}
+          placeholder={t("descriptionPlaceholder")}
+          aria-label={t("description")}
+          className="order-last w-full rounded border border-line px-2 py-1.5"
+        />
         <button
           type="submit"
           className="ml-auto rounded bg-primary px-3 py-1.5 text-xs font-bold text-white hover:bg-primary-dark"

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
@@ -15,8 +16,24 @@ import { RankingList } from "@/components/site/RankingList";
 import { CategorySection } from "@/components/site/CategorySection";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { articlePath, formatTaipeiShort } from "@/lib/site";
+import { pageMetadata } from "@/lib/seo";
+import { isDisplayableHero } from "@/lib/images";
 
 export const revalidate = 300;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "site" });
+  // title はレイアウトの既定(サイト名)を使い、description・canonical・OGP を明示
+  return {
+    ...pageMetadata({ description: t("description"), path: "/" }),
+    title: { absolute: t("homeHeading") },
+  };
+}
 
 export default async function HomePage({
   params,
@@ -93,7 +110,7 @@ export default async function HomePage({
                           className="group flex gap-2.5 py-2.5 first:pt-0"
                         >
                           <div className="relative aspect-[3/2] w-20 shrink-0 overflow-hidden rounded-sm bg-bg-sub">
-                            {a.heroImage ? (
+                            {isDisplayableHero(a.heroImage) ? (
                               <Image
                                 src={a.heroImage.url}
                                 alt={a.heroImage.alt}
@@ -175,14 +192,16 @@ export default async function HomePage({
 
           {/* サイドバー */}
           <aside className="flex flex-col gap-6">
-            <section aria-label={t("labels.ranking")}>
-              <div className="border-t-2 border-primary pt-2.5">
-                <SectionHeading>{t("labels.ranking")}</SectionHeading>
-              </div>
-              <div className="mt-1">
-                <RankingList articles={popular} />
-              </div>
-            </section>
+            {popular.length > 0 ? (
+              <section aria-label={t("labels.ranking")}>
+                <div className="border-t-2 border-primary pt-2.5">
+                  <SectionHeading>{t("labels.ranking")}</SectionHeading>
+                </div>
+                <div className="mt-1">
+                  <RankingList articles={popular} />
+                </div>
+              </section>
+            ) : null}
 
             {/* プレスリリース専用枠(主要ニュース面とは分離) */}
             {pressReleases.length > 0 ? (

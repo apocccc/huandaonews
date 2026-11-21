@@ -1,30 +1,20 @@
 import { notFound } from "next/navigation";
-import { getAllPublishedForSitemap, getVisibleCategories } from "@/lib/data";
+import {
+  CATEGORY_INDEX_MIN_ARTICLES,
+  getAllPublishedForSitemap,
+  getCategoryArticleCounts,
+  getVisibleCategories,
+} from "@/lib/data";
 import { absoluteUrl, articlePath } from "@/lib/site";
-import { xmlEscape } from "@/lib/seo";
+import {
+  groupByMonth,
+  SITEMAP_HEADERS,
+  STATIC_PAGES,
+  urlset,
+  type SitemapUrl,
+} from "@/lib/sitemap";
 
-export const revalidate = 3600;
-
-const CHUNK_SIZE = 40000;
-
-function urlset(
-  urls: { loc: string; lastmod?: Date; changefreq?: string; priority?: string }[]
-): string {
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls
-  .map(
-    (u) => `  <url>
-    <loc>${xmlEscape(u.loc)}</loc>
-${u.lastmod ? `    <lastmod>${u.lastmod.toISOString()}</lastmod>` : ""}
-${u.changefreq ? `    <changefreq>${u.changefreq}</changefreq>` : ""}
-${u.priority ? `    <priority>${u.priority}</priority>` : ""}
-  </url>`
-  )
-  .join("\n")}
-</urlset>
-`;
-}
+export const revalidate = 300;
 
 export async function GET(
   _req: Request,
@@ -33,44 +23,66 @@ export async function GET(
   const { name } = await params;
 
   if (name === "pages.xml") {
-    const categories = await getVisibleCategories();
-    const urls = [
-      { loc: absoluteUrl("/"), changefreq: "hourly", priority: "1.0" },
+    const [allCategories, articles, counts] = await Promise.all([
+      getVisibleCategories(),
+      getAllPublishedForSitemap(),
+      getCategoryArticleCounts(),
+    ]);
+    // noindex にしている記事の少ないカテゴリーはサイトマップにも載せない
+    const categories = allCategories.filter(
+      (c) => (counts[c.slug] ?? 0) >= CATEGORY_INDEX_MIN_ARTICLES
+    );
+    const newest = articles.reduce<Date | undefined>(
+      (max, a) => (!max || a.updatedAt > max ? a.updatedAt : max),
+      undefined
+    );
+    const urls: SitemapUrl[] = [
+      { loc: absoluteUrl("/"), lastmod: newest, changefreq: "hourly", priority: "1.0" },
       ...categories.map((c) => ({
         loc: absoluteUrl(`/category/${c.slug}`),
         changefreq: "hourly",
         priority: "0.8",
       })),
-      { loc: absoluteUrl("/about"), changefreq: "monthly", priority: "0.3" },
-      { loc: absoluteUrl("/contact"), changefreq: "monthly", priority: "0.3" },
-      { loc: absoluteUrl("/privacy"), changefreq: "monthly", priority: "0.3" },
+      ...STATIC_PAGES.map((p) => ({
+        loc: absoluteUrl(p),
+        changefreq: "monthly",
+        priority: "0.3",
+      })),
     ];
-    return xmlResponse(urlset(urls));
+    return xml(urlset(urls));
   }
 
-  const m = name.match(/^articles-(\d+)\.xml$/);
-  if (m) {
-    const chunk = parseInt(m[1], 10);
-    const articles = await getAllPublishedForSitemap();
-    const start = (chunk - 1) * CHUNK_SIZE;
-    if (chunk < 1 || (start > 0 && start >= articles.length)) notFound();
-    const slice = articles.slice(start, start + CHUNK_SIZE);
-    const urls = slice.map((a) => ({
-      loc: absoluteUrl(articlePath(a.category.slug, a.slug)),
-      lastmod: a.updatedAt,
-      priority: "0.7",
-    }));
-    return xmlResponse(urlset(urls));
+  // 公開月ごとの記事サイトマップ
+  const month = name.match(/^articles-(\d{4}-\d{2})\.xml$/);
+  if (month) {
+    const group = groupByMonth(await getAllPublishedForSitemap()).find(
+      (g) => g.month === month[1]
+    );
+    if (!group) notFound();
+    return xml(urlset(group.articles.map(toUrl)));
+  }
+
+  // 旧形式 articles-{n}.xml(Search Console が既に知っているURL)。全記事を返す
+  if (/^articles-\d+\.xml$/.test(name)) {
+    return xml(urlset((await getAllPublishedForSitemap()).map(toUrl)));
   }
 
   notFound();
 }
 
-function xmlResponse(xml: string) {
-  return new Response(xml, {
-    headers: {
-      "Content-Type": "application/xml; charset=utf-8",
-      "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=3600",
-    },
-  });
+function toUrl(a: {
+  slug: string;
+  updatedAt: Date;
+  category: { slug: string };
+}): SitemapUrl {
+  // lastmod は記事の実際の更新日時(dateModified と一致)
+  return {
+    loc: absoluteUrl(articlePath(a.category.slug, a.slug)),
+    lastmod: a.updatedAt,
+    priority: "0.7",
+  };
+}
+
+function xml(body: string) {
+  return new Response(body, { headers: SITEMAP_HEADERS });
 }

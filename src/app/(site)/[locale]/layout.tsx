@@ -9,7 +9,7 @@ import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { GoogleAnalytics } from "@/components/site/GoogleAnalytics";
 import { JsonLd } from "@/components/JsonLd";
-import { organizationJsonLd, webSiteJsonLd } from "@/lib/seo";
+import { organizationJsonLd, pageMetadata, webSiteJsonLd } from "@/lib/seo";
 import { absoluteUrl, SITE_URL } from "@/lib/site";
 import "../../globals.css";
 
@@ -30,15 +30,9 @@ export async function generateMetadata({
       default: t("name"),
       template: `%s | ${t("name")}`,
     },
-    description: t("description"),
-    openGraph: {
-      siteName: t("name"),
-      type: "website",
-      locale: locale === "en" ? "en_US" : "zh_TW",
-    },
-    twitter: {
-      card: "summary_large_image",
-    },
+    // 既定値(各ページが pageMetadata で canonical / OGP / description を上書きする)
+    ...pageMetadata({ description: t("description"), path: "/" }),
+    manifest: "/manifest.webmanifest",
     alternates: {
       types: {
         "application/rss+xml": [
@@ -65,7 +59,7 @@ export default async function SiteLayout({
   const categories = await getVisibleCategories();
 
   return (
-    <html lang={locale === "en" ? "en" : "zh-Hant"}>
+    <html lang="zh-Hant">
       <body
         className={`${notoSansTC.variable} ${inter.variable} font-sans bg-bg text-ink min-h-screen flex flex-col`}
       >

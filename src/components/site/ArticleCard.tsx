@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation";
 import type { ArticleListItem } from "@/lib/data";
 import { categoryName } from "@/lib/categories";
 import { articlePath, formatTaipei } from "@/lib/site";
+import { isDisplayableHero } from "@/lib/images";
 
 function CategoryBadge({
   article,
@@ -38,7 +39,7 @@ function Thumb({
   sizes: string;
   priority?: boolean;
 }) {
-  if (!article.heroImage) {
+  if (!isDisplayableHero(article.heroImage)) {
     return (
       <div
         aria-hidden="true"

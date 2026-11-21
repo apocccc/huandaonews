@@ -21,6 +21,7 @@ Allow: /
 Disallow: /admin
 Disallow: /api
 Disallow: /preview
+Disallow: /*?_rsc=
 `
   ).join("\n");
 
@@ -30,6 +31,7 @@ Disallow: /admin
 Disallow: /api
 Disallow: /preview
 Disallow: /search
+Disallow: /*?_rsc=
 
 ${aiBlocks}
 Sitemap: ${absoluteUrl("/sitemap.xml")}

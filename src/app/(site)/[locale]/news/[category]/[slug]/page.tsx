@@ -12,7 +12,9 @@ import {
   incrementViewCount,
 } from "@/lib/data";
 import { renderArticleHtml } from "@/lib/tiptap";
-import { articleJsonLd } from "@/lib/seo";
+import { articleJsonLd, articleOgImage, pageMetadata, showsSource } from "@/lib/seo";
+import { isDisplayableHero } from "@/lib/images";
+import { extractText } from "@/lib/tiptap";
 import { JsonLd } from "@/components/JsonLd";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { ArticleCard } from "@/components/site/ArticleCard";
@@ -42,34 +44,24 @@ export async function generateMetadata({
   if (!article) return {};
 
   const path = articlePath(category, slug);
-  return {
+  const description =
+    article.lead?.trim() || extractText(article.body).replace(/\s+/g, " ").trim().slice(0, 150);
+  const base = pageMetadata({
     title: article.title,
-    description: article.lead,
-    alternates: {
-      // 記事本文は言語間で同一のため、canonical は常にプレフィックスなしURL
-      canonical: absoluteUrl(path),
-    },
+    description,
+    path,
+    type: "article",
+    image: articleOgImage(article),
+  });
+  return {
+    ...base,
     openGraph: {
+      ...base.openGraph,
       type: "article",
-      title: article.title,
-      description: article.lead,
-      url: absoluteUrl(path),
       publishedTime: (article.publishedAt ?? article.createdAt).toISOString(),
       modifiedTime: article.updatedAt.toISOString(),
       section: article.category.nameZh,
       authors: [absoluteUrl(`/author/${article.author.slug}`)],
-      ...(article.heroImage
-        ? {
-            images: [
-              {
-                url: article.heroImage.url,
-                width: article.heroImage.width,
-                height: article.heroImage.height,
-                alt: article.heroImage.alt,
-              },
-            ],
-          }
-        : {}),
     },
   };
 }
@@ -208,7 +200,8 @@ export default async function ArticlePage({
                 </p>
               ) : null}
 
-              {article.heroImage ? (
+              {/* ロゴ・小さすぎる画像はメイン画像として表示しない */}
+              {article.heroImage && isDisplayableHero(article.heroImage) ? (
                 <figure className="mt-5">
                   <div className="relative aspect-[16/9] overflow-hidden rounded-md">
                     <Image
@@ -239,7 +232,7 @@ export default async function ArticlePage({
             />
 
             {/* RSS転載記事の出典表記(AIで独自記事化済みの場合は非表示) */}
-            {article.sourceName && !article.isRewritten ? (
+            {showsSource(article) ? (
               <div className="mt-8 rounded-md bg-bg-sub px-4 py-3 text-sm text-gray">
                 {t("labels.sourceFrom")}
                 <span className="font-medium text-ink">
@@ -251,7 +244,7 @@ export default async function ArticlePage({
                     <a
                       href={article.sourceUrl}
                       target="_blank"
-                      rel="noopener nofollow"
+                      rel="noopener"
                       className="text-primary underline underline-offset-2 hover:text-primary-dark"
                     >
                       {t("labels.originalArticle")}
@@ -305,14 +298,16 @@ export default async function ArticlePage({
 
         {/* サイドバー */}
         <aside className="flex flex-col gap-6">
-          <section aria-label={t("labels.ranking")}>
-            <div className="border-t-2 border-primary pt-2.5">
-              <SectionHeading>{t("labels.ranking")}</SectionHeading>
-            </div>
-            <div className="mt-1">
-              <RankingList articles={popular} />
-            </div>
-          </section>
+          {popular.length > 0 ? (
+            <section aria-label={t("labels.ranking")}>
+              <div className="border-t-2 border-primary pt-2.5">
+                <SectionHeading>{t("labels.ranking")}</SectionHeading>
+              </div>
+              <div className="mt-1">
+                <RankingList articles={popular} />
+              </div>
+            </section>
+          ) : null}
 
           <section aria-label={t("labels.latestNews")}>
             <div className="flex items-baseline justify-between border-t-2 border-ink pt-2.5">

@@ -4,6 +4,7 @@ import { searchArticles } from "@/lib/data";
 import { ArticleCard } from "@/components/site/ArticleCard";
 import { Pagination } from "@/components/site/Pagination";
 import { SectionHeading } from "@/components/site/SectionHeading";
+import { pageMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -15,8 +16,13 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "search" });
-  return { title: t("title"), robots: { index: false } };
+  const t = await getTranslations({ locale });
+  return pageMetadata({
+    title: t("search.title"),
+    description: t("meta.search"),
+    path: "/search",
+    noindex: true,
+  });
 }
 
 export default async function SearchPage({
@@ -39,11 +45,9 @@ export default async function SearchPage({
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6">
-      <h1 className="text-2xl font-black">
-        <SectionHeading>
-          {query ? t("search.resultsFor", { query }) : t("search.title")}
-        </SectionHeading>
-      </h1>
+      <SectionHeading as="h1">
+        {query ? t("search.resultsFor", { query }) : t("search.title")}
+      </SectionHeading>
 
       <form action="" method="get" role="search" className="mt-5 flex max-w-md">
         <input

@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { categoryName } from "@/lib/categories";
 import { formatTaipei, TAIPEI_TZ } from "@/lib/site";
 import { SearchForm } from "./SearchForm";
+import { LogoHeading } from "./LogoHeading";
 
 export async function SiteHeader({
   categories,
@@ -49,14 +50,11 @@ export async function SiteHeader({
       {/* 中段: ロゴ+検索+言語 */}
       <div className="mx-auto max-w-6xl px-4">
         <div className="flex items-center justify-between gap-4 py-2.5">
-          <Link href="/" className="flex items-baseline gap-2 shrink-0">
-            <span className="text-[26px] font-black tracking-tight text-primary leading-none">
-              環島新聞網
-            </span>
-            <span className="hidden sm:inline text-[10px] font-medium uppercase tracking-widest text-gray">
-              Huandao News
-            </span>
-          </Link>
+          <LogoHeading
+            name={t("site.name")}
+            nameEn="Huandao News"
+            homeSuffix={t("site.homeHeading").split("｜").pop() ?? ""}
+          />
           <div className="flex items-center gap-3">
             <SearchForm
               placeholder={t("search.placeholder")}

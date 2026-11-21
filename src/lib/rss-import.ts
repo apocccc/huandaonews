@@ -33,7 +33,7 @@ type FeedItem = {
 
 const parser: Parser<object, FeedItem> = new Parser({
   timeout: 20_000,
-  headers: { "User-Agent": "HuandaoNewsBot/1.0 (+https://huandaonews.com)" },
+  headers: { "User-Agent": "HuandaoNewsBot/1.0 (+https://huandaonews.tw)" },
   customFields: {
     item: [
       ["content:encoded", "content:encoded"],
@@ -137,13 +137,13 @@ async function resolveHeroMedia(
   uploadedBy: string
 ) {
   if (candidate) {
-    const stored = await storeRemoteImage(candidate, title, uploadedBy);
+    const stored = await storeRemoteImage(candidate, title, uploadedBy, "rss", { asHero: true });
     if (stored) return stored;
   }
   if (item.link) {
     const ogImage = await fetchOgImage(item.link);
     if (ogImage && ogImage !== candidate) {
-      const stored = await storeRemoteImage(ogImage, title, uploadedBy);
+      const stored = await storeRemoteImage(ogImage, title, uploadedBy, "rss", { asHero: true });
       if (stored) return stored;
     }
   }
@@ -376,7 +376,9 @@ export async function backfillMissingThumbnails(limit = 10): Promise<number> {
       const stored = await storeRemoteImage(
         imageUrl,
         article.title,
-        importUser.id
+        importUser.id,
+        "rss",
+        { asHero: true }
       );
       if (!stored) continue;
       await prisma.article.update({

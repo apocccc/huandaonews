@@ -154,7 +154,9 @@
       "order": "Order",
       "visible": "Visible",
       "save": "Save",
-      "add": "Add category"
+      "add": "Add category",
+      "description": "Description (used for the page meta description)",
+      "descriptionPlaceholder": "e.g. News on the Presidential Office, cabinet and parties"
     },
     "users": {
       "title": "Users",

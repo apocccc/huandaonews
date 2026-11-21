@@ -57,6 +57,8 @@ model Category {
   slug      String  @unique
   nameZh    String
   nameEn    String
+  /// カテゴリー一覧ページの meta description 用の説明文(管理画面で編集)
+  description String?
   order     Int     @default(0)
   isVisible Boolean @default(true)
 
@@ -143,11 +145,15 @@ model Media {
   height     Int
   alt        String   @default("")
   mimeType   String
+  /// 元画像バイト列の SHA-1。同一画像(他社ロゴ等)の使い回し検出に使う
+  sha1       String?
   uploadedBy String
   uploader   User     @relation(fields: [uploadedBy], references: [id])
   createdAt  DateTime @default(now())
 
   articles Article[]
+
+  @@index([sha1])
 }
 
 model RssFeed {

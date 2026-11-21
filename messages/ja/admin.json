@@ -154,7 +154,9 @@
       "order": "並び順",
       "visible": "表示",
       "save": "保存",
-      "add": "カテゴリーを追加"
+      "add": "カテゴリーを追加",
+      "description": "説明(検索結果に表示されるページ説明)",
+      "descriptionPlaceholder": "例:総統府・行政院・立法院や各政党の動き"
     },
     "users": {
       "title": "ユーザー",

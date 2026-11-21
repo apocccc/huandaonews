@@ -129,18 +129,53 @@ export function getArticlesByCategory(
   );
 }
 
-/** 閲覧数ランキング(サイドバー用。新聞稿含む) */
+/** ランキングの対象期間(公開からの日数) */
+export const RANKING_WINDOW_DAYS = 7;
+
+/**
+ * 閲覧数ランキング(サイドバー用)。直近7日に公開された記事のみ・新聞稿は除外
+ * (古い記事や新聞稿がランキングを占有しないように。SEO修正指示書 P2-3)
+ */
 export function getPopularArticles(limit = 10) {
+  const since = new Date(Date.now() - RANKING_WINDOW_DAYS * 24 * 60 * 60 * 1000);
   return safe(
     () =>
       prisma.article.findMany({
-        where: publishedWhere,
-        orderBy: { viewCount: "desc" },
+        where: {
+          ...publishedWhere,
+          publishedAt: { gte: since },
+          category: { isNot: { slug: "press-release" } },
+        },
+        orderBy: [{ viewCount: "desc" }, { publishedAt: "desc" }],
         take: limit,
         include: articleListInclude,
       }),
     []
   );
+}
+
+/** この件数未満の公開記事しかないカテゴリーページは noindex,follow(薄いページ対策) */
+export const CATEGORY_INDEX_MIN_ARTICLES = 10;
+
+/** カテゴリーごとの公開記事数(slug → 件数)。latest は新聞稿以外の合計 */
+export function getCategoryArticleCounts() {
+  return safe(async () => {
+    const rows = await prisma.article.groupBy({
+      by: ["categoryId"],
+      where: publishedWhere,
+      _count: { _all: true },
+    });
+    const categories = await prisma.category.findMany({ select: { id: true, slug: true } });
+    const byId = new Map(rows.map((r) => [r.categoryId, r._count._all]));
+    const counts: Record<string, number> = {};
+    let latest = 0;
+    for (const c of categories) {
+      counts[c.slug] = byId.get(c.id) ?? 0;
+      if (c.slug !== "press-release" && c.slug !== "latest") latest += counts[c.slug];
+    }
+    counts.latest = latest;
+    return counts;
+  }, {} as Record<string, number>);
 }
 
 /** カテゴリー別ダイジェスト(トップのセクション群用。新聞稿含む) */
@@ -373,8 +408,10 @@ export function findRedirect(fromPath: string) {
 }
 
 export function incrementViewCount(articleId: string) {
-  // fire-and-forget。失敗しても表示へ影響させない
-  prisma.article
-    .update({ where: { id: articleId }, data: { viewCount: { increment: 1 } } })
+  // fire-and-forget。失敗しても表示へ影響させない。
+  // Prisma の update は @updatedAt を毎回上書きし、閲覧されるたびに「更新日時」
+  // (sitemap lastmod / JSON-LD dateModified)が動いてしまうため、生SQLで閲覧数だけ増やす。
+  prisma
+    .$executeRaw`UPDATE "Article" SET "viewCount" = "viewCount" + 1 WHERE "id" = ${articleId}`
     .catch(() => {});
 }

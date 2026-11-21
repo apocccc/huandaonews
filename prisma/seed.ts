@@ -23,6 +23,23 @@ const CATEGORIES = [
   { slug: "press-release", nameZh: "新聞稿", nameEn: "Press Releases", order: 12 },
 ];
 
+/** カテゴリー説明の初期値(meta description に使う。管理画面で編集可能) */
+const CATEGORY_DESCRIPTIONS: Record<string, string> = {
+  "latest": "彙整各分類的最新新聞,隨時掌握台灣與國際的即時動態",
+  "politics": "總統府、行政院、立法院與各政黨動態,以及選舉與兩岸政策的最新消息",
+  "society": "社會事件、司法、交通、教育與公共安全等貼近日常的新聞",
+  "local": "台灣各縣市的地方新聞、市政建設與在地生活資訊",
+  "world": "國際政治、經濟與重大事件,以及與台灣相關的國際動向",
+  "business": "台股、產業、企業動態、房市與總體經濟等財經新聞",
+  "tech": "半導體、AI、手機、網路服務與新創產業的科技新聞",
+  "life": "消費、天氣、美食、交通與生活實用資訊",
+  "entertainment": "影視、音樂、綜藝與明星動態等娛樂新聞",
+  "sports": "棒球、籃球、足球與國際賽事等體育新聞",
+  "health": "醫療、疾病預防、飲食與健康生活資訊",
+  "travel": "國內外旅遊景點、交通、住宿與活動資訊",
+  "press-release": "企業與機構發布的新聞稿,內容由提供單位負責",
+};
+
 function doc(paragraphs: (string | { h2: string })[]) {
   return {
     type: "doc",
@@ -427,7 +444,7 @@ async function main() {
   for (const c of CATEGORIES) {
     await prisma.category.upsert({
       where: { slug: c.slug },
-      create: { ...c, isVisible: true },
+      create: { ...c, isVisible: true, description: CATEGORY_DESCRIPTIONS[c.slug] ?? null },
       update: { nameZh: c.nameZh, nameEn: c.nameEn, order: c.order },
     });
   }

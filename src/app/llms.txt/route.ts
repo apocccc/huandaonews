@@ -29,6 +29,14 @@ ${categories
   .map((c) => `- ${c.nameEn} (${c.nameZh}): ${absoluteUrl(`/rss/${c.slug}.xml`)}`)
   .join("\n")}
 
+## Policies
+
+- About: ${absoluteUrl("/about")}
+- Editorial policy: ${absoluteUrl("/editorial-policy")}
+- Corrections policy: ${absoluteUrl("/corrections")}
+- Terms: ${absoluteUrl("/terms")}
+- Contact: ${absoluteUrl("/contact")}
+
 ## Sitemaps
 
 - ${absoluteUrl("/sitemap.xml")}

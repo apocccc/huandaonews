@@ -1,42 +1,32 @@
-import { getAllPublishedForSitemap } from "@/lib/data";
+import { getAllPublishedForSitemap, getNewsSitemapArticles } from "@/lib/data";
 import { absoluteUrl } from "@/lib/site";
-import { xmlEscape } from "@/lib/seo";
+import { groupByMonth, SITEMAP_HEADERS, sitemapIndex } from "@/lib/sitemap";
 
-export const revalidate = 3600;
-
-const SITEMAP_CHUNK_SIZE = 40000;
+export const revalidate = 300;
 
 /**
- * インデックスサイトマップ。5万件超に備え、記事は4万件ごとに分割した
- * /sitemaps/articles-{n}.xml を参照する。
+ * インデックスサイトマップ。
+ * - pages.xml(トップ・カテゴリー・静的ページ)
+ * - news-sitemap.xml(Googleニュース用・直近48時間)
+ * - articles-YYYY-MM.xml(公開月ごと。lastmod はその月の最終更新日時)
  */
 export async function GET() {
-  const articles = await getAllPublishedForSitemap();
-  const chunks = Math.max(1, Math.ceil(articles.length / SITEMAP_CHUNK_SIZE));
+  const [articles, news] = await Promise.all([
+    getAllPublishedForSitemap(),
+    getNewsSitemapArticles(),
+  ]);
+  const months = groupByMonth(articles);
+  const newest = months[0]?.lastmod;
+  const newsLastmod = news[0]?.publishedAt ?? newest;
 
-  const sitemaps = [
-    absoluteUrl("/sitemaps/pages.xml"),
-    ...Array.from({ length: chunks }, (_, i) =>
-      absoluteUrl(`/sitemaps/articles-${i + 1}.xml`)
-    ),
-  ];
+  const xml = sitemapIndex([
+    { loc: absoluteUrl("/sitemaps/pages.xml"), lastmod: newest },
+    { loc: absoluteUrl("/news-sitemap.xml"), lastmod: newsLastmod ?? undefined },
+    ...months.map((m) => ({
+      loc: absoluteUrl(`/sitemaps/articles-${m.month}.xml`),
+      lastmod: m.lastmod,
+    })),
+  ]);
 
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${sitemaps
-  .map(
-    (u) => `  <sitemap>
-    <loc>${xmlEscape(u)}</loc>
-  </sitemap>`
-  )
-  .join("\n")}
-</sitemapindex>
-`;
-
-  return new Response(xml, {
-    headers: {
-      "Content-Type": "application/xml; charset=utf-8",
-      "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=3600",
-    },
-  });
+  return new Response(xml, { headers: SITEMAP_HEADERS });
 }

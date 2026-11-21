@@ -154,7 +154,9 @@
       "order": "排序",
       "visible": "顯示",
       "save": "儲存",
-      "add": "新增分類"
+      "add": "新增分類",
+      "description": "說明(用於搜尋結果的頁面描述)",
+      "descriptionPlaceholder": "例:總統府、行政院、立法院與各政黨動態"
     },
     "users": {
       "title": "使用者",

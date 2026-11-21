@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { getArticlesByTag } from "@/lib/data";
+import { CATEGORY_INDEX_MIN_ARTICLES, getArticlesByTag } from "@/lib/data";
+import { JsonLd } from "@/components/JsonLd";
+import { collectionPageJsonLd, pageMetadata } from "@/lib/seo";
 import { ArticleCard } from "@/components/site/ArticleCard";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { Pagination } from "@/components/site/Pagination";
@@ -15,13 +17,25 @@ type Params = { locale: string; tag: string };
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<Params>;
+  searchParams: Promise<{ page?: string }>;
 }): Promise<Metadata> {
-  const { tag: tagSlug } = await params;
-  const { tag } = await getArticlesByTag(tagSlug, 1, 1);
+  const { locale, tag: tagSlug } = await params;
+  const { tag, total } = await getArticlesByTag(tagSlug, 1, 1);
   if (!tag) return {};
-  return { title: `#${tag.nameZh}` };
+  const page = Math.max(1, parseInt((await searchParams).page ?? "1", 10) || 1);
+  const t = await getTranslations({ locale });
+  const pageLabel = page > 1 ? ` ${t("labels.page", { page })}` : "";
+  const base = `/tag/${tagSlug}`;
+  return pageMetadata({
+    title: `#${tag.nameZh}${pageLabel}`,
+    description: `${t("meta.tag", { tag: tag.nameZh })}${pageLabel}`,
+    path: page > 1 ? `${base}?page=${page}` : base,
+    // 記事の少ないタグページは薄いページとして noindex(リンクはたどらせる)
+    noindex: total < CATEGORY_INDEX_MIN_ARTICLES,
+  });
 }
 
 export default async function TagPage({
@@ -49,12 +63,18 @@ export default async function TagPage({
           { name: `#${tag.nameZh}`, path: `/tag/${tagSlug}` },
         ]}
       />
+      <JsonLd
+        data={collectionPageJsonLd({
+          name: `#${tag.nameZh}`,
+          description: t("meta.tag", { tag: tag.nameZh }),
+          path: page > 1 ? `/tag/${tagSlug}?page=${page}` : `/tag/${tagSlug}`,
+          articles: items,
+        })}
+      />
       <div className="mt-4">
-        <h1 className="text-2xl font-black">
-          <SectionHeading>
-            {t("tag.articlesTagged", { tag: tag.nameZh })}
-          </SectionHeading>
-        </h1>
+        <SectionHeading as="h1">
+          {t("tag.articlesTagged", { tag: tag.nameZh })}
+        </SectionHeading>
       </div>
 
       {items.length === 0 ? (

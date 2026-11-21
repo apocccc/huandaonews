@@ -383,6 +383,7 @@ const categorySchema = z.object({
   nameEn: z.string().min(1).max(50),
   order: z.coerce.number().int(),
   isVisible: z.boolean(),
+  description: z.string().trim().max(200).optional(),
 });
 
 export async function saveCategoryAction(formData: FormData) {
@@ -397,7 +398,9 @@ export async function saveCategoryAction(formData: FormData) {
     nameEn: formData.get("nameEn"),
     order: formData.get("order"),
     isVisible: formData.get("isVisible") === "on",
+    description: (formData.get("description") as string | null) ?? undefined,
   });
+  const description = parsed.description ? parsed.description : null;
 
   if (parsed.id) {
     await prisma.category.update({
@@ -407,6 +410,7 @@ export async function saveCategoryAction(formData: FormData) {
         nameEn: parsed.nameEn,
         order: parsed.order,
         isVisible: parsed.isVisible,
+        description,
       },
     });
   } else {
@@ -417,6 +421,7 @@ export async function saveCategoryAction(formData: FormData) {
         nameEn: parsed.nameEn,
         order: parsed.order,
         isVisible: parsed.isVisible,
+        description,
       },
     });
   }

@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation";
 import type { ArticleListItem } from "@/lib/data";
 import { categoryName } from "@/lib/categories";
 import { articlePath, formatTaipeiShort } from "@/lib/site";
+import { isDisplayableHero } from "@/lib/images";
 
 /** トップのカテゴリー別ブロック: リード記事(サムネ付き)+見出しリスト */
 export function CategorySection({
@@ -44,7 +45,7 @@ export function CategorySection({
         className="group mt-2.5 flex gap-3"
       >
         <div className="relative aspect-[3/2] w-24 shrink-0 overflow-hidden rounded-sm bg-bg-sub">
-          {lead.heroImage ? (
+          {isDisplayableHero(lead.heroImage) ? (
             <Image
               src={lead.heroImage.url}
               alt={lead.heroImage.alt}

@@ -46,7 +46,10 @@ export default async function HomePage({
     if (a.id === hero?.id || subTop.some((s) => s.id === a.id)) continue;
     subTop.push(a);
   }
-  const heroIds = new Set([hero?.id, ...subTop.map((a) => a.id)]);
+  // サムネイル付き4件の下の余白を埋めるテキスト見出し(ヒーローの高さに揃える)
+  const usedIds = new Set([hero?.id, ...subTop.map((a) => a.id)]);
+  const subHeadlines = latest.filter((a) => !usedIds.has(a.id)).slice(0, 4);
+  const heroIds = new Set([...usedIds, ...subHeadlines.map((a) => a.id)]);
   const rest = latest.filter((a) => !heroIds.has(a.id));
 
   return (
@@ -127,6 +130,26 @@ export default async function HomePage({
                       </li>
                     ))}
                   </ul>
+                  {subHeadlines.length > 0 ? (
+                    <ul className="mt-1 divide-y divide-line border-t border-line">
+                      {subHeadlines.map((a) => (
+                        <li key={a.id}>
+                          <Link
+                            href={articlePath(a.category.slug, a.slug)}
+                            className="group flex items-start gap-2 py-2"
+                          >
+                            <span
+                              aria-hidden="true"
+                              className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-primary"
+                            />
+                            <span className="line-clamp-2 text-[13.5px] font-medium leading-snug group-hover:text-primary">
+                              {a.title}
+                            </span>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
                 </div>
               </div>
             </section>

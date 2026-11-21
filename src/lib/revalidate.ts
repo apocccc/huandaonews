@@ -14,7 +14,7 @@ export function revalidateArticle(categorySlug: string, articleSlug: string) {
 }
 
 function revalidateArticleInner(categorySlug: string, articleSlug: string) {
-  for (const locale of ["", "/en"]) {
+  for (const locale of [""]) {
     revalidatePath(`${locale}${articlePath(categorySlug, articleSlug)}`);
     revalidatePath(`${locale}/category/${categorySlug}`);
     revalidatePath(`${locale}/category/latest`);

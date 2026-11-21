@@ -18,6 +18,13 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  // 英語UIは廃止。既にインデックス・共有された /en/... は繁体字ページへ恒久転送
+  async redirects() {
+    return [
+      { source: "/en", destination: "/", permanent: true },
+      { source: "/en/:path*", destination: "/:path*", permanent: true },
+    ];
+  },
 };
 
 export default withNextIntl(nextConfig);

@@ -21,10 +21,7 @@ export default async function ProtectedAdminLayout({
     { href: "/admin", label: t("nav.dashboard") },
     { href: "/admin/articles", label: t("nav.articles") },
     ...(canManageTaxonomy
-      ? [
-          { href: "/admin/rss", label: t("nav.rss") },
-          { href: "/admin/categories", label: t("nav.categories") },
-        ]
+      ? [{ href: "/admin/categories", label: t("nav.categories") }]
       : []),
     ...(isAdmin ? [{ href: "/admin/users", label: t("nav.users") }] : []),
   ];

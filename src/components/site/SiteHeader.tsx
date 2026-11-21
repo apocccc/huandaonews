@@ -3,7 +3,6 @@ import type { Category } from "@prisma/client";
 import { Link } from "@/i18n/navigation";
 import { categoryName } from "@/lib/categories";
 import { formatTaipei, TAIPEI_TZ } from "@/lib/site";
-import { LanguageSwitcher } from "./LanguageSwitcher";
 import { SearchForm } from "./SearchForm";
 
 export async function SiteHeader({
@@ -63,7 +62,6 @@ export async function SiteHeader({
               placeholder={t("search.placeholder")}
               buttonLabel={t("search.button")}
             />
-            <LanguageSwitcher />
           </div>
         </div>
       </div>

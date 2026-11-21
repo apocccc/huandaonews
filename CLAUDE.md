@@ -10,6 +10,7 @@
 - **メディア名**: 環島新聞網(正式名)。英語表記は未定のため、当面 `Huandao News` を仮表記として使う。
 - **ドメイン**: `huandaonews.tw`(決定済み・お名前.comで取得、DNSはCloudflare管理)。コード内では環境変数 `NEXT_PUBLIC_SITE_URL` を必ず参照し、ドメインをハードコードしない(`src/lib/site.ts` の `SITE_URL` が唯一の参照点。未設定時のフォールバックは `https://huandaonews.tw`)。公開画像は `img.huandaonews.tw`(Cloudflare R2 カスタムドメイン)。
 - **ポジション**: 台湾ローカル読者向けの総合ニュースメディア。速報だけでなく生活情報・ガイド的な記事も扱う「ニュース+情報サイト」。
+- **記事の作り方(運用方針)**: **記事はすべて人が管理画面から投稿する。** AI生成・RSS自動取り込みなど外部APIによる記事生成は行わない(2026-11 に全停止・コード削除済み。DBの RssFeed テーブルや Article.source* / isRewritten カラムは過去データ保持のため残置)。
 - **ターゲット**: 台湾のデジタル世代。モダンで軽快なUI。
 - **最重要の設計思想**: Google・Googleニュース・各種検索・AI(LLMクローラー)に「引用されやすい」構造を最優先する。記事本文は常に**初期HTMLに完全な形で含まれる**こと(クライアントサイドfetchで本文を後読みしない)。
 
@@ -22,7 +23,7 @@
 | DB | PostgreSQL (Vercel Postgres / Neon) + Prisma | |
 | 認証 | Auth.js (NextAuth v5) | メール+パスワード。管理系ユーザーのみ。一般読者のログインは当面なし |
 | エディター | Tiptap | WYSIWYG。本文はJSON(Tiptap doc)で保存し、HTMLへサーバーサイドで変換 |
-| i18n | next-intl | ロケール: `zh-Hant`(既定) / `en` / 管理画面のみ `ja` も |
+| i18n | next-intl | 公開サイトは `zh-Hant` のみ(英語UIは廃止)。管理画面のみ `zh-Hant` / `en` / `ja` |
 | 画像 | Vercel Blob + next/image | アップロード時にWebP変換・リサイズ |
 | スタイル | Tailwind CSS | デザイントークンは §3 に従う |
 | RSS/サイトマップ | 自前実装 (Route Handlers) | §7 参照 |
@@ -57,15 +58,11 @@
 
 ## 4. 多言語仕様
 
-### 公開サイト: `zh-Hant`(既定) / `en`
+### 公開サイト: `zh-Hant` のみ
 
-- **記事本文は翻訳しない。常に繁体字のみ。**
-- 言語切替で変わるのは**UIクローム側だけ**: ナビゲーション、カテゴリー名、日付表記、フッター、「関連記事」「最新ニュース」等のラベル。
-- URL 設計:
-  - 繁体字(既定): プレフィックスなし → `/news/politics/xxxx`
-  - 英語UI: `/en/...` プレフィックス → `/en/news/politics/xxxx`
-  - **記事ページの canonical は常にプレフィックスなしのURL**に向ける(本文が同一のため、重複コンテンツ扱いを避ける)。`/en/` 側の記事ページには `hreflang` を張らない(翻訳ではないため)。カテゴリー・トップ等の一覧ページのみ `hreflang="zh-Hant"` / `hreflang="en"` を相互に設定する。
-- 言語切替UIはヘッダー右上。選択はCookieに保存。
+- 記事本文・UIともに繁体字のみ。**英語UI(`/en/...`)は廃止**した。
+- 過去にインデックス・共有された `/en/...` は `next.config.ts` の redirects で繁体字の同一パスへ 308 転送する(削除しないこと)。
+- canonical はプレフィックスなしURL。hreflang は出さない。
 
 ### 管理画面: `zh-Hant` / `en` / `ja` の3言語
 
@@ -85,7 +82,6 @@ SEO・AI引用を最優先した、安定的で意味の読めるURL。
 /author/{authorSlug}               著者ページ
 /about, /contact, /privacy         静的ページ
 /search?q=                         検索
-/en/...                            上記の英語UI版
 /admin/...                         管理画面(noindex)
 /rss.xml, /rss/{category}.xml      RSS (§7)
 /sitemap.xml, /news-sitemap.xml    サイトマップ (§8)

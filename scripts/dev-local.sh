@@ -82,15 +82,6 @@ grep -v -e '^DATABASE_URL=' -e '^DIRECT_DATABASE_URL=' .env > .env.new || true
 rm -f .env.new
 echo "▶ DATABASE_URL = $URL"
 
-# OpenAI APIキーの記入欄を用意(値は各自 .env に直接記入する)
-if ! grep -q '^OPENAI_API_KEY=' .env; then
-  {
-    echo '# OpenAI API(AI独自記事化に使用)— sk-... のキーをここに記入'
-    echo 'OPENAI_API_KEY=""'
-  } >> .env
-  echo "▶ .env に OPENAI_API_KEY の記入欄を追加しました(キーを直接記入してください)"
-fi
-
 # --- 依存・スキーマ・シード ---
 # 依存追加やスキーマ変更を含む更新を確実に取り込むため毎回実行する
 # (変更がなければ pnpm install は数百msで終わる。db push はクライアント再生成も行う)

@@ -59,7 +59,6 @@ pnpm dev
 
 ```
 /                                  トップ(zh-Hant 既定)
-/en/...                            英語UI(記事本文は常に繁体字)
 /news/{category}/{yyyymmdd}-{slug} 記事
 /category/{category}               カテゴリー一覧(/category/latest は全カテゴリー横断)
 /rss.xml, /rss/{category}.xml      RSS 2.0(全文入り)
@@ -72,4 +71,4 @@ pnpm dev
 ## デプロイ (Vercel + Supabase + Cloudflare R2/DNS + Resend)
 
 手順書: [docs/DEPLOY.md](./docs/DEPLOY.md)(Supabase pooler・R2カスタムドメイン・Cloudflare DNS設定の落とし穴込み)。
-必要な環境変数は `.env.example` を参照。cron は `vercel.json` で毎分(予約公開)/10分おき(RSS取得)/毎朝8:00 JST(AI記事化)が動く。
+必要な環境変数は `.env.example` を参照。cron は `vercel.json` の毎分(予約公開のリリース)のみ。記事はすべて管理画面から人が投稿する。

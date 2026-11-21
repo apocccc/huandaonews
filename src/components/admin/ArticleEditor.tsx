@@ -19,7 +19,6 @@ import {
   restoreRevisionAction,
   saveArticleAction,
 } from "@/app/(admin)/admin/actions";
-import { rewriteArticleAction } from "@/app/(admin)/admin/rss-actions";
 
 type EditorArticle = {
   id: string;
@@ -61,8 +60,6 @@ export function ArticleEditor({
   const t = useTranslations("admin.editor");
   const ts = useTranslations("admin.status");
   const tr = useTranslations("admin.rewrite");
-  const [rewriting, setRewriting] = useState(false);
-  const [rewriteError, setRewriteError] = useState<string | null>(null);
   const [title, setTitle] = useState(article.title);
   const [lead, setLead] = useState(article.lead);
   const [slug, setSlug] = useState(article.slug);
@@ -184,10 +181,11 @@ export function ArticleEditor({
     });
   };
 
+  // alt はファイル名ではなく記事タイトルを使う(公開ページではキャプションとして表示されるため)
   const uploadImage = async (file: File): Promise<{ id: string; url: string } | null> => {
     const fd = new FormData();
     fd.append("file", file);
-    fd.append("alt", file.name.replace(/\.[a-z0-9]+$/i, ""));
+    fd.append("alt", title.trim());
     const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
     if (!res.ok) return null;
     return res.json();
@@ -198,7 +196,7 @@ export function ArticleEditor({
     if (!file || !editor) return;
     const media = await uploadImage(file);
     if (media) {
-      editor.chain().focus().setImage({ src: media.url }).run();
+      editor.chain().focus().setImage({ src: media.url, alt: title.trim() }).run();
     }
     e.target.value = "";
   };
@@ -248,27 +246,6 @@ export function ArticleEditor({
           </span>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          {article.isRssImported && !article.isRewritten ? (
-            <button
-              type="button"
-              disabled={rewriting}
-              onClick={async () => {
-                if (!window.confirm(tr("confirm"))) return;
-                setRewriting(true);
-                setRewriteError(null);
-                const result = await rewriteArticleAction(article.id);
-                if (result.ok) {
-                  window.location.reload();
-                } else {
-                  setRewriteError(result.error);
-                  setRewriting(false);
-                }
-              }}
-              className="rounded bg-ink px-3 py-1.5 text-sm font-bold text-white hover:bg-ink/80 disabled:opacity-50"
-            >
-              {rewriting ? tr("running") : `✦ ${tr("button")}`}
-            </button>
-          ) : null}
           <a
             href={`/preview/${article.id}?token=${previewToken}`}
             target="_blank"
@@ -337,12 +314,6 @@ export function ArticleEditor({
           ) : null}
         </div>
       </div>
-
-      {rewriteError ? (
-        <p className="mt-3 rounded bg-primary-light px-3 py-2 text-sm text-primary-dark">
-          {tr("error")}: {rewriteError}
-        </p>
-      ) : null}
 
       <div className="mt-5 grid gap-6 lg:grid-cols-[1fr_280px]">
         {/* メインカラム */}

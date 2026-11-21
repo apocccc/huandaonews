@@ -78,7 +78,6 @@ R2_ACCESS_KEY_ID      = ...
 R2_SECRET_ACCESS_KEY  = ...
 R2_BUCKET             = huandaonews-public
 R2_PUBLIC_BASE_URL    = https://img.huandaonews.tw
-OPENAI_API_KEY        = sk-...
 CRON_SECRET           = (openssl rand -hex 16)
 RESEND_API_KEY        = re_...
 ```
@@ -103,11 +102,8 @@ pnpm db:seed:prod
 その後:
 
 1. `https://huandaonews.tw/admin` にログイン
-2. RSS 來源にフィードを登録(自動公開/頻度/件数を設定)
-3. cron はデプロイと同時に有効:
-   - 毎分: 予約公開リリース
-   - 10分おき: RSS自動取得
-   - 23:00 UTC (= 8:00 JST): AI記事化ジョブ(8:30〜9:30 JST にランダム公開)
+2. 「記事」→「+ 新規記事」から投稿を開始
+3. cron はデプロイと同時に有効: 毎分、予約公開(publishAt 到達分)をリリース
 4. Google Search Console にプロパティ追加 → `sitemap.xml` / `news-sitemap.xml` を送信
 
 ## 落とし穴チェックリスト(再掲)

@@ -98,7 +98,7 @@ export async function createArticleAction() {
   const article = await prisma.article.create({
     data: {
       title: "",
-      slug: articleSlug(`draft-${Date.now().toString(36)}`),
+      slug: articleSlug(Date.now().toString(36)),
       body: { type: "doc", content: [{ type: "paragraph" }] },
       status: "draft",
       categoryId: latest.id,

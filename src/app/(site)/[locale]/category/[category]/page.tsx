@@ -27,17 +27,10 @@ export async function generateMetadata({
   const path = `/category/${slug}`;
   return {
     title: name,
-    alternates: {
-      canonical: absoluteUrl(locale === "en" ? `/en${path}` : path),
-      // 一覧ページはUI言語版同士を hreflang で相互リンク
-      languages: {
-        "zh-Hant": absoluteUrl(path),
-        en: absoluteUrl(`/en${path}`),
-      },
-    },
+    alternates: { canonical: absoluteUrl(path) },
     openGraph: {
       title: name,
-      url: absoluteUrl(locale === "en" ? `/en${path}` : path),
+      url: absoluteUrl(path),
     },
   };
 }

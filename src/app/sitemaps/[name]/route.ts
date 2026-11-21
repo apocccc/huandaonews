@@ -36,16 +36,10 @@ export async function GET(
     const categories = await getVisibleCategories();
     const urls = [
       { loc: absoluteUrl("/"), changefreq: "hourly", priority: "1.0" },
-      { loc: absoluteUrl("/en"), changefreq: "hourly", priority: "0.8" },
       ...categories.map((c) => ({
         loc: absoluteUrl(`/category/${c.slug}`),
         changefreq: "hourly",
         priority: "0.8",
-      })),
-      ...categories.map((c) => ({
-        loc: absoluteUrl(`/en/category/${c.slug}`),
-        changefreq: "hourly",
-        priority: "0.6",
       })),
       { loc: absoluteUrl("/about"), changefreq: "monthly", priority: "0.3" },
       { loc: absoluteUrl("/contact"), changefreq: "monthly", priority: "0.3" },

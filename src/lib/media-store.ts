@@ -4,6 +4,7 @@ import sharp from "sharp";
 import { prisma } from "@/lib/prisma";
 
 const MAX_WIDTH = 1600;
+const MAX_DOWNLOAD_BYTES = 15 * 1024 * 1024;
 
 export type StoredMedia = { id: string; url: string; width: number; height: number };
 
@@ -83,4 +84,50 @@ export async function storeImage(
   });
 
   return { id: media.id, url: media.url, width: media.width, height: media.height };
+}
+
+/**
+ * 外部画像URLをそのまま参照する Media レコードを作成する(ホットリンク)。
+ * ダウンロード保存に失敗した場合のフォールバック用
+ */
+export async function createRemoteMedia(
+  imageUrl: string,
+  alt: string,
+  uploadedBy: string
+): Promise<StoredMedia> {
+  const media = await prisma.media.create({
+    data: {
+      url: imageUrl,
+      width: 0,
+      height: 0,
+      alt,
+      mimeType: "image/*",
+      uploadedBy,
+    },
+  });
+  return { id: media.id, url: media.url, width: 0, height: 0 };
+}
+
+/** リモート画像をダウンロードして保存する。失敗時は null(取り込みを止めない) */
+export async function storeRemoteImage(
+  imageUrl: string,
+  alt: string,
+  uploadedBy: string,
+  subdir = "rss"
+): Promise<StoredMedia | null> {
+  try {
+    const res = await fetch(imageUrl, {
+      signal: AbortSignal.timeout(15_000),
+      headers: { "User-Agent": "HuandaoNewsBot/1.0 (+https://huandaonews.com)" },
+    });
+    if (!res.ok) return null;
+    const contentType = res.headers.get("content-type") ?? "";
+    if (!contentType.startsWith("image/")) return null;
+    const buf = Buffer.from(await res.arrayBuffer());
+    if (buf.byteLength === 0 || buf.byteLength > MAX_DOWNLOAD_BYTES) return null;
+    return await storeImage(buf, alt, uploadedBy, subdir);
+  } catch (e) {
+    console.error(`[media-store] failed to download ${imageUrl}:`, e);
+    return null;
+  }
 }

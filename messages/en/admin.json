@@ -118,7 +118,7 @@
       "pipelineHint": "Imports into regular categories are held as drafts; every day at 8:00 JST the AI rewrites up to 5 per category as original stories, released at a random time between 8:30 and 9:30. Press releases are reprinted without limit, plus up to 5 are rewritten into the most fitting category.",
       "runDailyJob": "Run AI rewrite job now",
       "autoFetch": "Auto-fetch",
-      "autoFetchHint": "Auto-fetch imports on the selected schedule. When off, you can still import manually with \"Fetch now\"",
+      "autoFetchHint": "Auto-fetch imports on the selected schedule (anything longer than 30 minutes is checked every 30 minutes). When off, you can still import manually with \"Fetch now\". Press-release feeds import every item without a limit and publish immediately",
       "interval": "Fetch frequency",
       "intervals": {
         "m10": "Every 10 min",

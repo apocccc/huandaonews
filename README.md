@@ -71,4 +71,4 @@ pnpm dev
 ## デプロイ (Vercel + Supabase + Cloudflare R2/DNS + Resend)
 
 手順書: [docs/DEPLOY.md](./docs/DEPLOY.md)(Supabase pooler・R2カスタムドメイン・Cloudflare DNS設定の落とし穴込み)。
-必要な環境変数は `.env.example` を参照。cron は `vercel.json` の毎分(予約公開のリリース)のみ。記事はすべて管理画面から人が投稿する。
+必要な環境変数は `.env.example` を参照。cron は `vercel.json` の毎分(予約公開のリリース)と10分おき(RSS取り込み:APOC Wire台湾の新聞稿を全件自動公開。確認間隔は最大30分)。通常記事はすべて管理画面から人が投稿する。
